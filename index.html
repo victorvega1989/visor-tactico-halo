@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Visor Táctico - Halo Flashpoint</title>
+  <meta name="theme-color" content="#187175">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+  <!-- Vendor y Fuentes Locales para 100% Offline -->
+  <link rel="stylesheet" href="fonts.css">
+  <script src="vendor/exceljs.min.js"></script>
+  <script src="data.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- VISTA 1: MENÚ PRINCIPAL (NUEVO) -->
+  <div id="view-home" class="app-view active">
+    <div class="home-hero">
+      <h1>HALO <span>FLASHPOINT</span></h1>
+      <p>Universal Tools for a Greater Battlefield</p>
+    </div>
+    
+    <div class="home-menu-grid">
+      <button class="home-btn btn-border-gold" onclick="document.getElementById('helpModal').classList.add('active')">
+        <div class="icon-box"><span class="ui-icon icon-home-help"></span></div>
+        <div class="text-box">
+          <h3>Guía de uso</h3>
+          <p>Primeros pasos, componentes y consejos.</p>
+        </div>
+        <div class="arrow-box">></div>
+      </button>
+
+      <button class="home-btn btn-border-cyan" onclick="navigateTo('view-database', 'db')">
+        <div class="icon-box"><span class="ui-icon icon-home-combat"></span></div>
+        <div class="text-box">
+          <h3>Combatientes</h3>
+          <p>Perfiles, habilidades y equipo.</p>
+        </div>
+        <div class="arrow-box">></div>
+      </button>
+
+      <button class="home-btn btn-border-cyan" onclick="navigateTo('view-database', 'squads')">
+        <div class="icon-box"><span class="ui-icon icon-home-squads"></span></div>
+        <div class="text-box">
+          <h3>Mis escuadras</h3>
+          <p>Crea y gestiona tus fuerzas.</p>
+        </div>
+        <div class="arrow-box">></div>
+      </button>
+
+      <button class="home-btn btn-border-gold" onclick="navigateTo('diceModal')">
+        <div class="icon-box"><span class="ui-icon icon-home-battle"></span></div>
+        <div class="text-box">
+          <h3>Campo de Batalla</h3>
+          <p>Terrenos, reglas y escenarios.</p>
+        </div>
+        <div class="arrow-box">></div>
+      </button>
+
+      <button class="home-btn btn-border-gold" onclick="navigateTo('armoryModal')">
+        <div class="icon-box"><span class="ui-icon icon-home-barracks"></span></div>
+        <div class="text-box">
+          <h3>Barracones</h3>
+          <p>Equipamiento, vehículos y apoyo.</p>
+        </div>
+        <div class="arrow-box">></div>
+      </button>
+
+      <button class="home-btn btn-border-cyan" onclick="navigateTo('compendiumModal')">
+        <div class="icon-box"><span class="ui-icon icon-home-rules"></span></div>
+        <div class="text-box">
+          <h3>Reglas y Glosario</h3>
+          <p>Reglas, términos y referencias.</p>
+        </div>
+        <div class="arrow-box">></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- VISTA 2: BASE DE DATOS Y ESCUADRAS (ANTIGUO BODY) -->
+  <div id="view-database" class="app-view">
+    <!-- Botón volver insertado dinámicamente o por CSS -->
+    
+
+  <aside>
+    <div class="sidebar-header">
+      <div class="sidebar-header-titles">
+        <h1>Halo Flashpoint</h1>
+        <p>Visor Táctico <a href="https://boardgamegeek.com/profile/mano89" target="_blank" rel="noopener noreferrer" style="color:#00d2ff; text-decoration:none;" title="Perfil del autor en BoardGameGeek">por mano89</a></p>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center;">
+        
+      </div>
+    </div>
+    <button onclick="goHome()" style="width:100%; margin: 10px 0; padding:12px; background:transparent; border:1px solid #71b9b6; color:#71b9b6; border-radius:4px; font-family:'Rajdhani', sans-serif; font-size:1.1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">◎ VOLVER AL MENÚ PRINCIPAL</button>
+
+    <div class="sidebar-tabs" style="display:none !important;">
+      <button id="tabDB" class="tab-btn active">BASE DE DATOS</button>
+      <button id="tabSquad" class="tab-btn">MIS ESCUADRAS</button>
+    </div>
+
+    <div id="viewDB" class="view-container">
+      <div class="filter-section" style="margin-top:4px;">
+        <label class="filter-label" for="factionSelect">Filtrar por Facción:</label>
+        <select id="factionSelect"><option value="ALL">-- Base de Datos Completa --</option></select>
+        <label class="filter-label" for="searchUnit">Identificación Rápida:</label>
+        <input type="text" id="searchUnit" placeholder="Ej. Spartan, Master Chief...">
+      </div>
+      <ul class="unit-list" id="unitList"></ul>
+    </div>
+
+    <div id="viewSquad" class="view-container" style="display: none;">
+      <div class="squad-controls">
+        <div class="squad-selector-row">
+          <select id="squadSelector" style="flex:1;"></select>
+          <button id="btnEditSquad" class="btn-sq-act btn-sq-edit" title="Editar Nombre de Escuadra">✏️</button>
+          <button id="btnNewSquad" class="btn-sq-act" title="Crear Nueva Escuadra">+</button>
+          <button id="btnDelSquad" class="btn-sq-act btn-sq-del" title="Borrar Escuadra Actual">-</button>
+        </div>
+
+        <!-- MODO WARGAME CONTROLES -->
+        <div class="squad-mode-bar">
+          <div class="mode-toggle-group">
+            <button id="btnModeDraft" class="btn-mode-toggle" onclick="setSquadMode('draft')">DRAFT</button>
+            <button id="btnModeWargame" class="btn-mode-toggle active" onclick="setSquadMode('wargame')">WARGAME</button>
+          </div>
+          <div class="limit-selector-group">
+            <label for="limitSelect">LÍMITE:</label>
+            <select id="limitSelect" onchange="setSquadPointsLimit(this.value)">
+              <option value="150">150 P</option>
+              <option value="200" selected>200 P (OFICIAL)</option>
+              <option value="250">250 P</option>
+              <option value="300">300 P</option>
+              <option value="0">LIBRE</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="btnOpenOrdersModal" class="btn-wargame-orders" onclick="openOrdersModal()">[ <span class="ui-icon icon-armory"></span> ÓRDENES Y MEJORAS DE ESCUADRA ]</button>
+
+        <div class="squad-points" id="squadPointsTotal">0 <span>/ 200 PTS</span></div>
+        <div class="squad-status-badges" id="squadStatusBadges"></div>
+
+        <button class="btn-print" onclick="prepareAndPrintSquad()">[ IMPRIMIR ESCUADRA ACTUAL ]</button>
+        <button class="btn-clear" id="btnClearSquad">[ VACIAR ESCUADRA ]</button>
+      </div>
+      <ul class="unit-list" id="squadList"></ul>
+    </div>
+  </aside>
+
+  <main id="mainContainer">
+    <button class="btn-back-list" onclick="closeCardMobile()"><span class="ui-icon icon-recon" style="width:16px; height:16px;"></span> VOLVER A LA LISTA</button>
+    <div class="empty-state" id="emptyState">
+      <div class="empty-radar">
+        <div class="radar-sweep"></div>
+      </div>
+      <h2>TERMINAL TÁCTICA LISTA</h2>
+      <p>Selecciona un operativo del panel lateral para consultar su tarjeta de combate o gestiona tus escuadras.</p>
+      <p style="margin-top: 18px;"><button id="btnOpenHelpEmpty" style="background:rgba(0,210,255,0.1); color:var(--text-cyan); border:1px solid var(--border-cyan); padding:9px 18px; font-family:'Share Tech Mono'; font-size:0.85rem; cursor:pointer; border-radius:3px;">[ CONSULTAR MANUAL TÁCTICO ]</button></p>
+    </div>
+  </main>
+  </div><!-- Fin view-database -->
+  
+  <div id="printContainer"></div>
+
+  <!-- BURBUJA CONTEXTUAL DE PALABRAS CLAVE -->
+  <div id="tacticalTooltip" class="tactical-tooltip">
+    <div class="tt-header">
+      <span id="ttTitle" class="tt-title">PALABRA CLAVE</span>
+      <button class="tt-close" onclick="hideKeywordTooltip()">&times;</button>
+    </div>
+    <div id="ttBody" class="tt-body">Descripción de la regla...</div>
+  </div>
+
+  <!-- MODAL DE CARGA / PERSONALIZACIÓN WARGAME DE UNIDAD -->
+  <div id="loadoutModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 650px;">
+      <button id="btnCloseLoadout" class="btn-close-modal" onclick="closeLoadoutModal()">&times;</button>
+      <div class="tutorial-body">
+        <h2 id="loadoutModalTitle">CONFIGURACIÓN WARGAME: OPERATIVO</h2>
+        
+        <div class="loadout-summary-bar">
+          <div>
+            <div style="font-size:0.75rem; color:#7b96b3; font-family:'Share Tech Mono';">COSTO TOTAL DEL OPERATIVO</div>
+            <div id="loadoutPointsBreakdown" style="font-size:0.9rem; color:#fff;">Base: 0 PTS</div>
+          </div>
+          <div class="loadout-summary-pts" id="loadoutPointsTotal">0 PTS</div>
+        </div>
+
+        <div class="loadout-grid">
+          <div class="loadout-field">
+            <label for="selMeleeWeapon">Arma Cuerpo a Cuerpo (Ranura CC):</label>
+            <select id="selMeleeWeapon" onchange="updateLoadoutLivePoints()"></select>
+          </div>
+          <div class="loadout-field">
+            <label for="selPrimaryWeapon">Arma Principal de Disparo (Ranged):</label>
+            <select id="selPrimaryWeapon" onchange="updateLoadoutLivePoints()"></select>
+          </div>
+          <div class="loadout-field">
+            <label for="selSecondaryWeapon">Arma Secundaria / Respaldo:</label>
+            <select id="selSecondaryWeapon" onchange="updateLoadoutLivePoints()"></select>
+          </div>
+          <div class="loadout-field">
+            <label for="selGrenade">Granada Inicial:</label>
+            <select id="selGrenade" onchange="updateLoadoutLivePoints()"></select>
+          </div>
+          <div class="loadout-field" style="grid-column: span 2;">
+            <label for="selItem">Objeto Táctico:</label>
+            <select id="selItem" onchange="updateLoadoutLivePoints()"></select>
+          </div>
+        </div>
+
+        <div id="loadoutDetailsBox" style="background:rgba(0,0,0,0.4); border:1px solid rgba(0,210,255,0.2); padding:10px 14px; border-radius:4px; margin-bottom:18px; font-size:0.85rem; color:#cbd5e1; min-height:48px;">
+          Selecciona armas u objetos para consultar sus rasgos tácticos.
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button style="background:transparent; color:#ff6b6b; border:1px solid #ff6b6b; padding:8px 16px; font-family:'Share Tech Mono'; cursor:pointer; border-radius:3px;" onclick="resetLoadoutToDefault()">[ RESTABLECER DE SERIE ]</button>
+          <button style="background:#11696b; color:#fff; border:none; padding:8px 24px; font-family:'Share Tech Mono'; font-weight:bold; cursor:pointer; border-radius:3px;" onclick="saveLoadout()">[ GUARDAR EQUIPAMIENTO ✔ ]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE CENTRO TÁCTICO DE OPERACIONES Y DADOS -->
+  <div id="diceModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 760px;">
+      <button id="btnCloseDice" class="btn-close-modal" onclick="closeDiceModal()">&times;</button>
+      <div class="tutorial-body">
+        
+        <!-- BARRA SUPERIOR DE CONTROL DE PARTIDA (RONDAS Y PUNTOS DE VICTORIA) -->
+        <div class="game-tracker-bar">
+          <div class="game-tracker-group">
+            <span style="color:#7b96b3;">RONDA:</span>
+            <button class="game-tracker-step-btn" onclick="stepGameRound(-1)">-</button>
+            <span id="gameTrackerRound" class="game-tracker-val" style="color:#facc15;">1</span>
+            <button class="game-tracker-step-btn" onclick="stepGameRound(1)">+</button>
+            <button class="btn-art-action" style="padding:4px 8px; font-size:0.7rem; margin-left:4px;" onclick="nextGameRound()">▶ SIG. RONDA</button>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div class="game-tracker-group">
+              <span id="gameTrackerP1Label" style="color:#ef4444; font-weight:800; cursor:pointer;" onclick="editPlayerName('p1')" title="Clic para editar nombre de J1"><span class="ui-icon icon-p1"></span> J1:</span>
+              <button class="game-tracker-step-btn" onclick="stepGameScore('p1', -1)">-</button>
+              <span id="gameTrackerP1Score" class="game-tracker-val">0</span>
+              <button class="game-tracker-step-btn" onclick="stepGameScore('p1', 1)">+</button>
+              <span style="font-size:0.75rem; color:#7b96b3;">VP</span>
+            </div>
+
+            <div class="game-tracker-group">
+              <span id="gameTrackerP2Label" style="color:#00d2ff; font-weight:800; cursor:pointer;" onclick="editPlayerName('p2')" title="Clic para editar nombre de J2"><span class="ui-icon icon-p2"></span> J2:</span>
+              <button class="game-tracker-step-btn" onclick="stepGameScore('p2', -1)">-</button>
+              <span id="gameTrackerP2Score" class="game-tracker-val">0</span>
+              <button class="game-tracker-step-btn" onclick="stepGameScore('p2', 1)">+</button>
+              <span style="font-size:0.75rem; color:#7b96b3;">VP</span>
+            </div>
+
+            <button class="btn-cancel" style="padding:3px 8px; font-size:0.7rem;" onclick="resetGameTracker()" title="Reiniciar ronda y puntos">↺ Reset</button>
+          </div>
+        </div>
+
+        <!-- PESTAÑAS DEL CENTRO TÁCTICO -->
+        <div class="dice-nav-tabs">
+          <button class="dice-tab-btn active" id="tabBtnDiceCombat" onclick="switchDiceTab('combat')"><span class="ui-icon icon-battle"></span> COMBATE D8</button>
+          <button class="dice-tab-btn" id="tabBtnDiceCommand" onclick="switchDiceTab('command')">⭐ DADOS DE MANDO</button>
+          <button class="dice-tab-btn" id="tabBtnDiceScatter" onclick="switchDiceTab('scatter')">🧭 DISPERSIÓN 3x3</button>
+          <button class="dice-tab-btn" id="tabBtnDiceRecon" onclick="switchDiceTab('recon')"><span class="ui-icon icon-recon"></span> RECON & CHEQUEOS</button>
+        </div>
+
+        <!-- PANEL 1: COMBATE D8 -->
+        <div id="dicePanelCombat" class="dice-panel active">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="color:#7b96b3; font-size:0.82rem; font-family:'Share Tech Mono';">ENFRENTAMIENTO ATACANTE VS DEFENSOR</span>
+            <button class="btn-cancel" style="padding:4px 10px; font-size:0.75rem;" onclick="resetDiceCombat()">↺ Limpiar</button>
+          </div>
+
+          <!-- CONTENEDOR DE LOS DOS EQUIPOS / ATACANTE Y DEFENSOR -->
+          <div class="dice-combat-container">
+          <!-- TARJETA ATACANTE -->
+          <div class="dice-team-card attacker">
+            <div class="dice-team-header">
+              <span style="color:#00d2ff;"><span class="ui-icon icon-battle"></span> ATAQUE</span>
+              <div class="dice-count-control">
+                <button class="dice-btn-step" onclick="changeAttDiceCount(-1)">-</button>
+                <span class="dice-count-display" id="dispAttCount">4</span>
+                <button class="dice-btn-step" onclick="changeAttDiceCount(1)">+</button>
+              </div>
+            </div>
+
+            <div class="dice-pills-row">
+              <button class="dice-diff-pill" id="btnAttDiff3" onclick="setAttTarget(3)">3+</button>
+              <button class="dice-diff-pill active" id="btnAttDiff4" onclick="setAttTarget(4)">4+</button>
+              <button class="dice-diff-pill" id="btnAttDiff5" onclick="setAttTarget(5)">5+</button>
+              <button class="dice-diff-pill" id="btnAttDiff6" onclick="setAttTarget(6)">6+</button>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:center; width:100%;">
+              <button id="btnHeadshot7Toggle" type="button" class="dice-toggle-chip" onclick="toggleHeadshotThreshold()">
+                <span class="ui-icon icon-crit"></span> Crítico 7+ (Óptica)
+              </button>
+            </div>
+
+            <!-- CUADRÍCULA DE DADOS DEL ATACANTE -->
+            <div class="dice-grid" id="attackerDiceGrid">
+              <span style="color:#64748b; font-size:0.8rem; font-family:'Share Tech Mono';">Dados Atacante</span>
+            </div>
+          </div>
+
+          <!-- TARJETA DEFENSOR -->
+          <div class="dice-team-card defender">
+            <div class="dice-team-header">
+              <span style="color:#ef4444;"><span class="ui-icon icon-shield"></span> DEFENSA</span>
+              <div class="dice-count-control">
+                <button class="dice-btn-step" onclick="changeDefDiceCount(-1)">-</button>
+                <span class="dice-count-display" id="dispDefCount">3</span>
+                <button class="dice-btn-step" onclick="changeDefDiceCount(1)">+</button>
+              </div>
+            </div>
+
+            <div class="dice-pills-row">
+              <button class="dice-diff-pill" id="btnDefDiff3" onclick="setDefTarget(3)">3+</button>
+              <button class="dice-diff-pill" id="btnDefDiff4" onclick="setDefTarget(4)">4+</button>
+              <button class="dice-diff-pill active" id="btnDefDiff5" onclick="setDefTarget(5)">5+</button>
+              <button class="dice-diff-pill" id="btnDefDiff6" onclick="setDefTarget(6)">6+</button>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:center; width:100%; min-height:29px; color:#64748b; font-family:'Share Tech Mono'; font-size:0.75rem;">
+              <span><span class="ui-icon icon-shield"></span> Supervivencia estándar</span>
+            </div>
+
+            <!-- CUADRÍCULA DE DADOS DEL DEFENSOR -->
+            <div class="dice-grid" id="defenderDiceGrid">
+              <span style="color:#64748b; font-size:0.8rem; font-family:'Share Tech Mono';">Dados Defensor</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTONES DE ACCIÓN -->
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button id="btnRollDiceCombat" class="armory-btn-submit" style="width:100%; justify-content:center; padding:12px; font-size:1.05rem; letter-spacing:1px; background:linear-gradient(135deg, #11696b, #00d2ff); color:#050b14; font-weight:800;" onclick="rollDiceCombat()">
+            <span class="ui-icon icon-dice"></span> LANZAR DADOS
+          </button>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="btnRollExtraHeadshots" class="btn-art-action" style="flex:1; justify-content:center; padding:8px 12px; display:none; background:linear-gradient(135deg,#ca8a04,#eab308); color:#000;" onclick="rollExtraHeadshotDice()">
+              <span class="ui-icon icon-crit"></span> +<span id="extraHeadshotCount">0</span> DADO EXTRA (CRÍTICO)
+            </button>
+            <button id="btnRerollAttFails" class="btn-art-action" style="flex:1; justify-content:center; padding:8px 12px; display:none;" onclick="rerollFailedAttackerDice()">
+              <span class="ui-icon icon-reroll"></span> REPETIR FALLOS
+            </button>
+          </div>
+        </div>
+
+        <!-- SCOREBOARD MINIMALISTA -->
+        <div class="dice-scoreboard-box">
+          <div class="dice-scoreboard-row">
+            <div><span class="ui-icon icon-battle"></span> ÉXITOS: <span id="dispAttSuccesses" class="dice-scoreboard-score">-</span></div>
+            <div style="color:#475569; font-weight:bold;">VS</div>
+            <div><span class="ui-icon icon-shield"></span> BLOQUEOS: <span id="dispDefSuccesses" class="dice-scoreboard-score">-</span></div>
+          </div>
+          <div id="diceCombatMainVerdict" class="dice-scoreboard-badge idle">
+            LISTO PARA TIRAR
+          </div>
+          <div id="diceCombatBreakdown" style="font-size:0.75rem; color:#64748b; font-family:'Share Tech Mono';">
+            Aplica AP, Escudos y Armadura en mesa según corresponda.
+          </div>
+        </div>
+      </div>
+      <!-- FIN PANEL 1 -->
+
+      <!-- PANEL 2: DADOS DE MANDO (COMMAND DICE DUAL) -->
+      <div id="dicePanelCommand" class="dice-panel">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-bottom:12px;">
+          <!-- JUGADOR 1 -->
+          <div class="cmd-player-card p1">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p1')" title="Clic para cambiar nombre">
+                <span id="cmdDiceP1Name" style="color:#ef4444; font-family:'Share Tech Mono'; font-weight:800; font-size:0.9rem;"><span class="ui-icon icon-p1"></span> J1</span>
+                <span style="font-size:0.7rem; color:#ef4444; opacity:0.7;">✏️</span>
+              </div>
+              <div class="dice-count-control">
+                <button class="dice-btn-step" onclick="changeCmdCount('p1', -1)">-</button>
+                <span class="dice-count-display" id="dispCmdCountP1">2</span>
+                <button class="dice-btn-step" onclick="changeCmdCount('p1', 1)">+</button>
+              </div>
+            </div>
+            <div class="cmd-dice-grid" id="cmdDiceGridP1">
+              <span style="color:#64748b; font-size:0.75rem; font-family:'Share Tech Mono';">Sin dados tirados</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button id="btnRollCmdP1" class="armory-btn-submit" style="flex:1; padding:8px; font-size:0.82rem; justify-content:center;" onclick="rollCommandDice('p1')"><span class="ui-icon icon-dice"></span> TIRAR J1</button>
+              <button class="btn-art-action" style="padding:8px 10px; font-size:0.78rem;" onclick="rerollUnspentCommandDice('p1')" title="Relanzar dados no gastados (Tactician)"><span class="ui-icon icon-reroll"></span> TACTICIAN</button>
+            </div>
+          </div>
+
+          <!-- JUGADOR 2 -->
+          <div class="cmd-player-card p2">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p2')" title="Clic para cambiar nombre">
+                <span id="cmdDiceP2Name" style="color:#00d2ff; font-family:'Share Tech Mono'; font-weight:800; font-size:0.9rem;"><span class="ui-icon icon-p2"></span> J2</span>
+                <span style="font-size:0.7rem; color:#00d2ff; opacity:0.7;">✏️</span>
+              </div>
+              <div class="dice-count-control">
+                <button class="dice-btn-step" onclick="changeCmdCount('p2', -1)">-</button>
+                <span class="dice-count-display" id="dispCmdCountP2">2</span>
+                <button class="dice-btn-step" onclick="changeCmdCount('p2', 1)">+</button>
+              </div>
+            </div>
+            <div class="cmd-dice-grid" id="cmdDiceGridP2">
+              <span style="color:#64748b; font-size:0.75rem; font-family:'Share Tech Mono';">Sin dados tirados</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button id="btnRollCmdP2" class="armory-btn-submit" style="flex:1; padding:8px; font-size:0.82rem; justify-content:center; background:linear-gradient(135deg, #11696b, #00d2ff);" onclick="rollCommandDice('p2')"><span class="ui-icon icon-dice"></span> TIRAR J2</button>
+              <button class="btn-art-action" style="padding:8px 10px; font-size:0.78rem;" onclick="rerollUnspentCommandDice('p2')" title="Relanzar dados no gastados (Tactician)"><span class="ui-icon icon-reroll"></span> TACTICIAN</button>
+            </div>
+          </div>
+        </div>
+
+        <button id="btnRollCmdBoth" class="armory-btn-submit" style="width:100%; justify-content:center; padding:10px; font-size:0.95rem; background:linear-gradient(135deg, #0284c7, #10b981);" onclick="rollBothCommandDice()">
+          <span class="ui-icon icon-dice"></span> ¡TIRAR MANDO DE AMBOS JUGADORES!
+        </button>
+      </div>
+
+      <!-- PANEL 3: DISPERSIÓN 3X3 -->
+      <div id="dicePanelScatter" class="dice-panel">
+        <div class="scatter-grid">
+          <div class="scatter-cell" id="scatterCell1">1</div>
+          <div class="scatter-cell" id="scatterCell2">2</div>
+          <div class="scatter-cell" id="scatterCell3">3</div>
+          <div class="scatter-cell" id="scatterCell8">8</div>
+          <div class="scatter-cell center" id="scatterCellCenter">⌖</div>
+          <div class="scatter-cell" id="scatterCell4">4</div>
+          <div class="scatter-cell" id="scatterCell7">7</div>
+          <div class="scatter-cell" id="scatterCell6">6</div>
+          <div class="scatter-cell" id="scatterCell5">5</div>
+        </div>
+
+        <div style="display:flex; justify-content:center; margin:12px 0;">
+          <button id="btnRollScatter" class="armory-btn-submit" style="padding:10px 22px; font-size:0.95rem; justify-content:center;" onclick="rollScatterD8()">
+            <span class="ui-icon icon-dice"></span> LANZAR DISPERSIÓN (D8)
+          </button>
+        </div>
+
+        <div id="scatterVerdictBox" class="dice-scoreboard-box" style="margin-top:4px;">
+          <div id="scatterVerdictTitle" class="dice-scoreboard-badge idle">ESPERANDO TIRADA...</div>
+        </div>
+      </div>
+
+      <!-- PANEL 4: RECON Y CHEQUEOS -->
+      <div id="dicePanelRecon" class="dice-panel">
+        <!-- SECCIÓN 1: TEST DE RECON (5 DADOS J1 VS J2 - DIFICULTAD 5+) -->
+        <div style="background:rgba(13,20,30,0.85); border:1px solid #283c54; border-radius:6px; padding:12px; margin-bottom:12px; text-align:center;">
+          <div style="display:flex; justify-content:center; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:10px; text-align:center;">
+            <span style="color:#00d2ff; font-family:'Share Tech Mono'; font-weight:800; font-size:0.88rem;"><span class="ui-icon icon-recon"></span> 1. TEST DE RECON / INICIATIVA (5 DADOS A 5+)</span>
+            <button id="btnRollReconInit" class="armory-btn-submit" style="padding:6px 16px; font-size:0.82rem;" onclick="rollReconInitiative()">
+              <span class="ui-icon icon-dice"></span> TIRAR RECON / INICIATIVA
+            </button>
+          </div>
+          <div id="reconInitDiceGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin:10px 0; align-items:center;">
+            <!-- JUGADOR 1 -->
+            <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(239,68,68,0.25); border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px;">
+              <div style="display:flex; align-items:center; justify-content:center; text-align:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p1')" title="Clic para cambiar nombre">
+                <span id="reconInitP1Name" style="font-size:0.8rem; color:#ef4444; font-weight:800; font-family:'Share Tech Mono'; text-align:center; word-break:break-word;"><span class="ui-icon icon-p1"></span> J1</span>
+                <span style="font-size:0.65rem; color:#ef4444; opacity:0.7; flex-shrink:0;">✏️</span>
+                <span id="reconInitP1Score" style="font-size:0.75rem; color:#cbd5e1; font-weight:bold; margin-left:4px;">(- Éxitos)</span>
+              </div>
+              <div id="reconInitP1Dice" style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap; min-height:56px; align-items:center;">
+                <div class="d8-die white" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die white" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die white" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die white" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die white" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+              </div>
+            </div>
+
+            <!-- JUGADOR 2 -->
+            <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(0,210,255,0.25); border-radius:6px; padding:10px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px;">
+              <div style="display:flex; align-items:center; justify-content:center; text-align:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p2')" title="Clic para cambiar nombre">
+                <span id="reconInitP2Name" style="font-size:0.8rem; color:#00d2ff; font-weight:800; font-family:'Share Tech Mono'; text-align:center; word-break:break-word;"><span class="ui-icon icon-p2"></span> J2</span>
+                <span style="font-size:0.65rem; color:#00d2ff; opacity:0.7; flex-shrink:0;">✏️</span>
+                <span id="reconInitP2Score" style="font-size:0.75rem; color:#cbd5e1; font-weight:bold; margin-left:4px;">(- Éxitos)</span>
+              </div>
+              <div id="reconInitP2Dice" style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap; min-height:56px; align-items:center;">
+                <div class="d8-die black" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die black" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die black" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die black" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+                <div class="d8-die black" style="opacity:0.45; width:44px; height:50px;"><span class="d8-die-val" style="font-size:1.3rem;">-</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="reconInitVerdict" class="dice-scoreboard-badge idle" style="width:100%; box-sizing:border-box; text-align:center;">
+            TIRA EL TEST DE RECON (5 DADOS A 5+) PARA DEFINIR GANADOR Y PERDEDOR
+          </div>
+        </div>
+
+        <!-- SECCIÓN 2: EFECTOS SIMULTÁNEOS DE RECON (GANADOR Y PERDEDOR) -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:14px;">
+          <!-- EFECTO GANADOR -->
+          <div class="recon-effect-card" style="border-left:4px solid #8df5a0; text-align:center;">
+            <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+              <span id="reconWinTitle" style="color:#8df5a0; font-family:'Share Tech Mono'; font-weight:800; font-size:0.85rem;"><span class="ui-icon icon-winner"></span> EFECTO GANADOR</span>
+              <button id="btnRollReconWin" class="armory-btn-submit" style="padding:5px 12px; font-size:0.75rem; opacity:0.4; cursor:not-allowed;" disabled onclick="rollReconWinner()"><span class="ui-icon icon-dice"></span> TIRAR D8</button>
+            </div>
+            <div id="reconWinDieContainer" style="display:flex; justify-content:center; align-items:center; gap:10px; margin:8px 0; min-height:64px;">
+              <div class="d8-die white" style="opacity:0.45;"><span class="d8-die-val">-</span></div>
+            </div>
+            <div id="reconWinText" style="font-size:0.78rem; color:#94a3b8; font-family:'Share Tech Mono'; text-align:center; min-height:44px; line-height:1.4;">
+              Bloqueado hasta definir la iniciativa.
+            </div>
+          </div>
+
+          <!-- EFECTO PERDEDOR -->
+          <div class="recon-effect-card" style="border-left:4px solid #facc15; text-align:center;">
+            <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;">
+              <span id="reconLoseTitle" style="color:#facc15; font-family:'Share Tech Mono'; font-weight:800; font-size:0.85rem;"><span class="ui-icon icon-shield"></span> EFECTO PERDEDOR</span>
+              <button id="btnRollReconLose" class="btn-art-action" style="padding:5px 12px; font-size:0.75rem; opacity:0.4; cursor:not-allowed;" disabled onclick="rollReconLoser()"><span class="ui-icon icon-dice"></span> TIRAR D8</button>
+            </div>
+            <div id="reconLoseDieContainer" style="display:flex; justify-content:center; align-items:center; gap:10px; margin:8px 0; min-height:64px;">
+              <div class="d8-die black" style="opacity:0.45;"><span class="d8-die-val">-</span></div>
+            </div>
+            <div id="reconLoseText" style="font-size:0.78rem; color:#94a3b8; font-family:'Share Tech Mono'; text-align:center; min-height:44px; line-height:1.4;">
+              Bloqueado hasta definir la iniciativa.
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3: CHEQUEO SIMPLE DE DADOS -->
+        <div style="background:rgba(13,20,30,0.85); border:1px solid #283c54; border-radius:6px; padding:12px; text-align:center;">
+          <div style="color:#facc15; font-family:'Share Tech Mono'; font-weight:800; font-size:0.88rem; margin-bottom:10px; text-align:center;">
+            <span class="ui-icon icon-dice"></span> 2. CHEQUEO SIMPLE (GRANADAS, ENTORNO O HABILIDADES)
+          </div>
+          <div style="display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:5px;">
+              <span style="font-size:0.72rem; color:#7b96b3; font-family:'Share Tech Mono';">DADOS:</span>
+              <button class="dice-btn-step" onclick="changeSimpleCheckCount(-1)">-</button>
+              <span class="dice-count-display" id="dispSimpleCheckCount">3</span>
+              <button class="dice-btn-step" onclick="changeSimpleCheckCount(1)">+</button>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:5px;">
+              <span style="font-size:0.72rem; color:#7b96b3; font-family:'Share Tech Mono';">OBJETIVO:</span>
+              <div class="dice-pills-row">
+                <button class="dice-diff-pill" id="btnSimpleDiff3" onclick="setSimpleTarget(3)">3+</button>
+                <button class="dice-diff-pill active" id="btnSimpleDiff4" onclick="setSimpleTarget(4)">4+</button>
+                <button class="dice-diff-pill" id="btnSimpleDiff5" onclick="setSimpleTarget(5)">5+</button>
+                <button class="dice-diff-pill" id="btnSimpleDiff6" onclick="setSimpleTarget(6)">6+</button>
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:5px;">
+              <span style="font-size:0.72rem; color:#7b96b3; font-family:'Share Tech Mono';">ÉXITOS REQ.:</span>
+              <button class="dice-btn-step" onclick="changeSimpleCheckRequired(-1)">-</button>
+              <span class="dice-count-display" id="dispSimpleCheckReq">1</span>
+              <button class="dice-btn-step" onclick="changeSimpleCheckRequired(1)">+</button>
+            </div>
+
+            <button id="btnRollSimpleCheck" class="armory-btn-submit" style="padding:7px 16px; font-size:0.82rem;" onclick="rollSimpleCheck()">
+              <span class="ui-icon icon-dice"></span> TIRAR TEST
+            </button>
+          </div>
+
+          <div class="dice-grid" id="simpleCheckDiceGrid" style="min-height:64px; justify-content:center;">
+            <span style="color:#64748b; font-size:0.75rem; font-family:'Share Tech Mono';">Configura los dados y pulsa TIRAR TEST</span>
+          </div>
+          <div id="simpleCheckResultText" style="text-align:center; font-family:'Share Tech Mono'; font-size:0.85rem; color:#94a3b8; margin-top:8px;">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- MODAL DE ÓRDENES Y MEJORAS DE ESCUADRA -->
+  <div id="ordersModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 720px;">
+      <button id="btnCloseOrders" class="btn-close-modal" onclick="closeOrdersModal()">&times;</button>
+      <div class="tutorial-body">
+        <h2>ÓRDENES DE MANDO Y MEJORAS DE ESCUADRA</h2>
+        <p style="color:#7b96b3; font-size:0.88rem;">Selecciona las órdenes de facción y mejoras de ejército tácticas para tu escuadra en Modo War Games.</p>
+
+        <div class="loadout-summary-bar" style="margin-top:12px;">
+          <div>
+            <div style="font-size:0.75rem; color:#7b96b3; font-family:'Share Tech Mono';">PUNTOS DE ÓRDENES Y MEJORAS</div>
+            <div id="ordersPointsBreakdown" style="font-size:0.9rem; color:#fff;">0 órdenes, 0 mejoras</div>
+          </div>
+          <div class="loadout-summary-pts" id="ordersPointsTotal">0 PTS</div>
+        </div>
+
+        <div class="orders-section-title">ÓRDENES DE MANDO TÁCTICAS</div>
+        <div id="ordersListContainer"></div>
+
+        <div class="orders-section-title" style="margin-top:24px;">MEJORAS DE EJÉRCITO</div>
+        <div id="upgradesListContainer"></div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+          <button style="background:#11696b; color:#fff; border:none; padding:10px 24px; font-family:'Share Tech Mono'; font-weight:bold; cursor:pointer; border-radius:3px;" onclick="saveOrders()">[ GUARDAR Y APLICAR ✔ ]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUTS OCULTOS DE SISTEMA -->
+  <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
+  <input type="file" id="jsonImportInput" accept=".json" style="display:none;">
+
+  <!-- MODAL DE BARRACONES Y ARMERÍA (TALLER TÁCTICO) -->
+  <div id="armoryModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 860px;">
+      <button id="btnCloseArmory" class="btn-close-modal" onclick="closeArmoryModal()">&times;</button>
+      <div class="tutorial-body">
+        <h2><span class="ui-icon icon-armory"></span> BARRACONES Y ARMERÍA (TALLER TÁCTICO)</h2>
+        <p style="color:#7b96b3; font-size:0.9rem; margin-bottom:16px;">
+          Centro de personalización y suministros. Crea nuevas reglas, fabrica armamento, recluta operativos a la medida, asigna fotos de tus miniaturas pintadas y administra respaldos.
+        </p>
+
+        <!-- NAVEGACIÓN POR PESTAÑAS -->
+        <div class="armory-nav-tabs">
+          <button id="tabArmoryRules" class="armory-tab-btn active" onclick="switchArmoryTab('rules')">1. REGLAS Y PROTOCOLOS</button>
+          <button id="tabArmoryWeapons" class="armory-tab-btn" onclick="switchArmoryTab('weapons')">2. LA ARMERÍA (EQUIPO)</button>
+          <button id="tabArmoryBarracks" class="armory-tab-btn" onclick="switchArmoryTab('barracks')">3. LOS BARRACONES (OPERATIVOS)</button>
+          <button id="tabArmoryPhotos" class="armory-tab-btn" onclick="switchArmoryTab('photos')">4. FOTOS DE MINIATURAS</button>
+          <button id="tabArmoryLogistics" class="armory-tab-btn" onclick="switchArmoryTab('logistics')">5. LOGÍSTICA Y ARCHIVO</button>
+        </div>
+
+        <!-- PANEL 1: REGLAS Y PROTOCOLOS -->
+        <div id="panelArmoryRules" class="armory-panel active">
+          <h3 style="color:#8df5a0; margin-bottom:6px;"><span class="ui-icon icon-rules"></span> Registrar Nueva Regla o Palabra Clave</h3>
+          <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:14px;">Añade palabras clave oficiales o de expansiones. Aparecerán en las tarjetas, descripciones emergentes y en el glosario de impresión.</p>
+          <div class="armory-form-grid" style="grid-template-columns: 1fr 2fr;">
+            <div class="armory-form-group">
+              <label for="kwNameInput">Nombre de la Palabra Clave / Regla:</label>
+              <input type="text" id="kwNameInput" placeholder="Ej. Infiltrador, Camuflaje Activo">
+            </div>
+            <div class="armory-form-group">
+              <label for="kwDescInput">Descripción Oficial del Efecto:</label>
+              <input type="text" id="kwDescInput" placeholder="Ej. Puede desplegarse a 1 cubo de distancia de zonas neutras...">
+            </div>
+          </div>
+          <button class="armory-btn-submit" onclick="addCustomRule()">+ REGISTRAR PALABRA CLAVE</button>
+
+          <h3 style="margin-top:24px; font-size:1rem; color:#d0dbe8;">Tus Palabras Clave Personalizadas</h3>
+          <div id="customRulesList" class="armory-items-list"></div>
+        </div>
+
+        <!-- PANEL 2: LA ARMERÍA -->
+        <div id="panelArmoryWeapons" class="armory-panel">
+          <h3 style="color:#8df5a0; margin-bottom:6px;">🔫 Fabricación de Armamento y Equipo</h3>
+          <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:14px;">Registra armas de disparo, cuerpo a cuerpo, granadas u objetos. Quedarán listas para equipar en los Barracones o en War Games.</p>
+          
+          <div class="armory-form-grid">
+            <div class="armory-form-group">
+              <label for="eqTypeInput">Tipo de Elemento:</label>
+              <select id="eqTypeInput" onchange="updateArmoryEquipmentFormFields()">
+                <option value="ranged">Arma de Disparo (Ranged)</option>
+                <option value="melee">Arma Cuerpo a Cuerpo (Melee)</option>
+                <option value="grenade">Granada</option>
+                <option value="item">Objeto de Apoyo (Item)</option>
+                <option value="order">Orden Táctica de Mando</option>
+              </select>
+            </div>
+            <div class="armory-form-group">
+              <label for="eqNameInput">Nombre:</label>
+              <input type="text" id="eqNameInput" placeholder="Ej. Stalker Rifle Alpha">
+            </div>
+            <div class="armory-form-group">
+              <label for="eqCostInput">Coste en Puntos:</label>
+              <input type="number" id="eqCostInput" value="6" min="0" max="50">
+            </div>
+            <div class="armory-form-group" id="groupEqRange">
+              <label for="eqRangeInput">Alcance (RA):</label>
+              <input type="text" id="eqRangeInput" placeholder="Ej. R5 o CC">
+            </div>
+            <div class="armory-form-group" id="groupEqAp">
+              <label for="eqApInput">Penetración (AP):</label>
+              <select id="eqApInput">
+                <option value="-">- (Sin Penetración)</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="armory-form-group" id="groupEqTraits" style="grid-column: span 2;">
+              <label>Palabras Clave / Rasgos (Selecciona los que apliquen):</label>
+              <div id="eqKwChipsContainer" class="kw-chip-grid" style="max-height: 140px;"></div>
+            </div>
+            <div class="armory-form-group" id="groupEqEffect" style="grid-column: span 2; display:none;">
+              <label for="eqEffectInput">Efecto / Regla Especial:</label>
+              <textarea id="eqEffectInput" rows="2" placeholder="Descripción detallada del efecto táctico..."></textarea>
+            </div>
+            <div class="armory-form-group" id="groupEqOrderFields" style="grid-column: span 2; display:none;">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div>
+                  <label for="eqOrderFactionInput">Facción:</label>
+                  <select id="eqOrderFactionInput">
+                    <option value="UNSC">UNSC</option>
+                    <option value="Banished">Desterrados (Banished)</option>
+                    <option value="General">General / Cualquiera</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="eqOrderUnitInput">Unidad / Restricción:</label>
+                  <input type="text" id="eqOrderUnitInput" placeholder="Ej. Spartan, ODST, Jiralhanae">
+                </div>
+              </div>
+            </div>
+          </div>
+          <button class="armory-btn-submit" onclick="addCustomEquipment()">+ FABRICAR Y REGISTRAR EN ARMERÍA</button>
+
+          <h3 style="margin-top:24px; font-size:1rem; color:#d0dbe8;">Equipamiento Personalizado en el Catálogo</h3>
+          <div id="customEquipmentList" class="armory-items-list"></div>
+        </div>
+
+        <!-- PANEL 3: LOS BARRACONES -->
+        <div id="panelArmoryBarracks" class="armory-panel">
+          <h3 style="color:#8df5a0; margin-bottom:6px;"><span class="ui-icon icon-armory"></span> Reclutamiento de Nuevos Operativos</h3>
+          <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:14px;">Define los atributos de tu soldado y asigna su armamento inicial seleccionando del catálogo existente.</p>
+
+          <div style="background:rgba(0,0,0,0.3); border:1px solid #283c54; padding:14px; border-radius:4px; margin-bottom:16px;">
+            <div style="font-family:'Share Tech Mono'; color:#00d2ff; font-size:0.8rem; margin-bottom:8px;">DATOS BÁSICOS DEL OPERATIVO</div>
+            <div class="armory-form-grid">
+              <div class="armory-form-group">
+                <label for="bmUnitName">Nombre del Operativo:</label>
+                <input type="text" id="bmUnitName" placeholder="Ej. Spartan Recon: S7 Sniper">
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitFaction">Facción:</label>
+                <select id="bmUnitFaction" onchange="toggleCustomFactionField()">
+                  <option value="UNSC">UNSC</option>
+                  <option value="Banished">Banished (Desterrados)</option>
+                  <option value="Covenant">Covenant</option>
+                  <option value="CUSTOM">[ Otra Facción Personalizada ]</option>
+                </select>
+              </div>
+              <div class="armory-form-group" id="groupCustomFaction" style="display:none;">
+                <label for="bmCustomFaction">Nombre de la Facción:</label>
+                <input type="text" id="bmCustomFaction" placeholder="Ej. Insurreccionistas">
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitCost">Coste Base (PTS):</label>
+                <input type="number" id="bmUnitCost" value="40" min="10" max="300">
+              </div>
+            </div>
+
+            <div style="font-family:'Share Tech Mono'; color:#00d2ff; font-size:0.8rem; margin:12px 0 8px 0;">TABLA DE ESTADÍSTICAS OFICIALES</div>
+            <div class="armory-form-grid" style="grid-template-columns: repeat(7, 1fr);">
+              <div class="armory-form-group">
+                <label for="bmUnitMove">MOV:</label>
+                <input type="text" id="bmUnitMove" value="2/3">
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitSht">RA (Disp):</label>
+                <select id="bmUnitSht"><option value="3+">3+</option><option value="4+" selected>4+</option><option value="5+">5+</option><option value="6+">6+</option></select>
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitFgt">FI (Lucha):</label>
+                <select id="bmUnitFgt"><option value="3+">3+</option><option value="4+" selected>4+</option><option value="5+">5+</option><option value="6+">6+</option></select>
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitSrv">SV (Superv):</label>
+                <select id="bmUnitSrv"><option value="3+">3+</option><option value="4+">4+</option><option value="5+" selected>5+</option><option value="6+">6+</option></select>
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitArm">AR (Arm):</label>
+                <select id="bmUnitArm"><option value="-">-</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select>
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitHp">HP (Vida):</label>
+                <input type="number" id="bmUnitHp" value="4" min="1" max="15">
+              </div>
+              <div class="armory-form-group">
+                <label for="bmUnitShield">SH (Escudo):</label>
+                <select id="bmUnitShield"><option value="-">-</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select>
+              </div>
+            </div>
+
+            <div style="font-family:'Share Tech Mono'; color:#00d2ff; font-size:0.8rem; margin:14px 0 8px 0;">ARSENAL DE SERIE (SELECCIONAR DEL CATÁLOGO)</div>
+            <div class="armory-form-grid">
+              <div class="armory-form-group">
+                <label for="bmSelMelee">Arma Cuerpo a Cuerpo:</label>
+                <select id="bmSelMelee"></select>
+              </div>
+              <div class="armory-form-group">
+                <label for="bmSelPrimary">Arma Principal de Disparo:</label>
+                <select id="bmSelPrimary"></select>
+              </div>
+              <div class="armory-form-group">
+                <label for="bmSelSecondary">Arma Secundaria (Opcional):</label>
+                <select id="bmSelSecondary"></select>
+              </div>
+              <div class="armory-form-group">
+                <label for="bmSelGrenade">Granada Inicial (Opcional):</label>
+                <select id="bmSelGrenade"></select>
+              </div>
+            </div>
+
+            <div style="font-family:'Share Tech Mono'; color:#00d2ff; font-size:0.8rem; margin:14px 0 8px 0;">HABILIDADES TÁCTICAS Y PALABRAS CLAVE</div>
+            <p style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px;">Selecciona del catálogo las habilidades y rasgos que posee tu operativo:</p>
+            <div id="bmKwChipsContainer" class="kw-chip-grid" style="max-height:160px; margin-bottom:12px;"></div>
+
+            <div style="background:rgba(0,0,0,0.25); border:1px dashed #283c54; padding:10px 12px; border-radius:4px; margin-bottom:14px;">
+              <div style="font-family:'Share Tech Mono'; color:#8df5a0; font-size:0.8rem; margin-bottom:8px;">➕ Regla o Habilidad Exclusiva Nueva (Opcional)</div>
+              <div class="armory-form-grid" style="grid-template-columns: 1fr 2fr;">
+                <div class="armory-form-group">
+                  <label for="bmSpecialName">Nombre de la Habilidad:</label>
+                  <input type="text" id="bmSpecialName" placeholder="Ej. Lobo Solitario (opcional)">
+                </div>
+                <div class="armory-form-group">
+                  <label for="bmSpecialDesc">Efecto Táctico / Descripción:</label>
+                  <input type="text" id="bmSpecialDesc" placeholder="Descripción del efecto táctico...">
+                </div>
+              </div>
+            </div>
+
+            <div style="font-family:'Share Tech Mono'; color:#00d2ff; font-size:0.8rem; margin:14px 0 8px 0;">FOTO DE TU MINIATURA PINTADA (OPCIONAL)</div>
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
+              <input type="file" id="bmPhotoInput" accept="image/*" style="display:inline-block; font-size:0.8rem;">
+              <img id="bmPhotoPreviewThumb" src="" alt="Vista previa" style="display:none; width:44px; height:44px; border-radius:50%; border:2px solid #00d2ff; object-fit:cover;">
+              <span id="bmPhotoStatusText" style="font-size:0.75rem; color:#7b96b3;">(Podrás encuadrar y hacer zoom a la miniatura al seleccionarla)</span>
+            </div>
+          </div>
+
+          <button class="armory-btn-submit" onclick="recruitCustomUnit()">+ RECLUTAR Y GUARDAR OPERATIVO ✔</button>
+
+          <h3 style="margin-top:24px; font-size:1rem; color:#d0dbe8;">Tus Operativos Personalizados Reclutados</h3>
+          <div id="customBarracksUnitsList" class="armory-items-list"></div>
+        </div>
+
+        <!-- PANEL 4: FOTOS DE MINIATURAS -->
+        <div id="panelArmoryPhotos" class="armory-panel">
+          <h3 style="color:#8df5a0; margin-bottom:6px;">📷 Inspección y Galería de Miniaturas Pintadas</h3>
+          <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:14px;">Sube las fotos de tus miniaturas reales pintadas a mano para cualquier modelo oficial o personalizado. Se guardan en tu navegador y aparecerán en las tarjetas y al imprimir el dossier A4.</p>
+
+          <div style="margin-bottom:14px;">
+            <input type="text" id="photoGallerySearch" placeholder="Buscar modelo para personalizar su foto..." oninput="renderPhotosGallery()">
+          </div>
+
+          <div id="photoGalleryGrid" class="mini-gallery-grid"></div>
+        </div>
+
+        <!-- PANEL 5: LOGÍSTICA Y ARCHIVO -->
+        <div id="panelArmoryLogistics" class="armory-panel">
+          <h3 style="color:#8df5a0; margin-bottom:6px;">📦 Logística, Respaldos y Actualización</h3>
+          <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:14px;">Exporta tus creaciones y fotos para compartirlas en BGG, restaura copias de seguridad o actualiza la base de datos oficial mediante Excel.</p>
+
+          <div style="display:flex; flex-direction:column; gap:18px;">
+            <!-- EXPORTAR / IMPORTAR -->
+            <div style="background:rgba(18, 26, 36, 0.85); border:1px solid #283c54; padding:16px; border-radius:4px;">
+              <h4 style="color:#fff; font-family:'Share Tech Mono'; font-size:0.95rem; margin-bottom:8px;">1. COPIAS DE SEGURIDAD Y COMPARTIR CREACIONES</h4>
+              <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:12px;">Descarga o carga un archivo JSON que incluye todas tus reglas, armas, operativos creados y fotos de miniaturas.</p>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="armory-btn-submit" onclick="exportCustomBackupJSON()">💾 EXPORTAR MIS PERSONALIZACIONES (JSON)</button>
+                <button class="armory-btn-submit" style="background:#088b9e;" onclick="document.getElementById('jsonImportInput').click()">📥 IMPORTAR PERSONALIZACIONES (JSON)</button>
+              </div>
+            </div>
+
+            <!-- EXCEL OFICIAL -->
+            <div style="background:rgba(18, 26, 36, 0.85); border:1px solid #283c54; padding:16px; border-radius:4px;">
+              <h4 style="color:#fff; font-family:'Share Tech Mono'; font-size:0.95rem; margin-bottom:8px;">2. ACTUALIZAR BASE DE DATOS OFICIAL DESDE EXCEL</h4>
+              <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:12px;">Si la comunidad o Josanto en BGG publican una nueva versión del Excel oficial (<code>.xlsx</code>), cárgala aquí para renovar la base oficial sin perder tus personalizaciones.</p>
+              <label class="btn-file" style="max-width:320px;">
+                [ 📂 CARGAR ARCHIVO EXCEL (.XLSX) ]
+                <input type="file" id="excelFileInput" accept=".xlsx">
+              </label>
+            </div>
+
+            <!-- RESET FACTORY -->
+            <div style="background:rgba(30, 15, 15, 0.85); border:1px solid rgba(239, 68, 68, 0.4); padding:16px; border-radius:4px;">
+              <h4 style="color:#ef4444; font-family:'Share Tech Mono'; font-size:0.95rem; margin-bottom:8px;">3. ZONA DE REINICIO DE FÁBRICA</h4>
+              <p style="font-size:0.85rem; color:#fca5a5; margin-bottom:12px;">Elimina permanentemente todas tus reglas personalizadas, armas, operativos y fotos subidas, restaurando la base de datos limpia de serie.</p>
+              <button class="armory-btn-del" style="padding:8px 16px; font-weight:bold;" onclick="resetToFactorySettings()">⚠️ RESTABLECER DATOS DE FÁBRICA</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE GESTIÓN Y ACCIÓN DE FOTO DE MINIATURA -->
+  <div id="photoActionModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 440px; text-align: center;">
+      <button class="btn-close-modal" onclick="closePhotoActionModal()">&times;</button>
+      <div class="tutorial-body">
+        <h2 id="photoActionTitle">📷 FOTO DEL OPERATIVO</h2>
+        <p id="photoActionDesc" style="color:#7b96b3; font-size:0.88rem; margin-bottom:20px;"></p>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button id="btnPhotoActionChange" class="armory-btn-submit" style="width:100%; justify-content:center; padding:10px 14px; font-size:0.9rem;" onclick="triggerPhotoUploadFromModal()">📷 SUBIR / CAMBIAR FOTO PINTADA</button>
+          <button id="btnPhotoActionReset" class="armory-btn-del" style="width:100%; justify-content:center; padding:10px 14px; font-size:0.9rem; display:none;" onclick="triggerPhotoResetFromModal()"><span class="ui-icon icon-reroll"></span> RESTAURAR ILUSTRACIÓN OFICIAL</button>
+          <button class="btn-cancel" style="width:100%; padding:8px 14px; margin-top:4px;" onclick="closePhotoActionModal()">CANCELAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE ENCUADRE Y RECORTE CIRCULAR DE MINIATURA -->
+  <div id="imageCropperModal" class="modal-overlay" style="z-index: 10005;">
+    <div class="modal-content" style="max-width: 440px; text-align: center;">
+      <button class="btn-close-modal" onclick="closeCropperModal()">&times;</button>
+      <div class="tutorial-body">
+        <h2>✂️ ENCUADRE DE MINIATURA</h2>
+        <p style="color:#7b96b3; font-size:0.85rem; margin-bottom:12px;">
+          Arrastra la imagen con el ratón o el dedo y usa el zoom para centrar a tu miniatura en el visor circular.
+        </p>
+
+        <!-- CONTENEDOR DEL CANVAS DE RECORTE -->
+        <div style="position:relative; width:320px; height:320px; margin:0 auto 12px auto; background:#080f17; border:2px solid #00d2ff; border-radius:8px; overflow:hidden; touch-action:none; cursor:grab;" id="cropContainer">
+          <canvas id="cropCanvas" width="320" height="320" style="display:block; width:100%; height:100%;"></canvas>
+        </div>
+
+        <!-- CONTROLES DE ZOOM -->
+        <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px;">
+          <span style="font-size:0.8rem; color:#7b96b3;">🔍 Zoom:</span>
+          <input type="range" id="cropZoomSlider" min="1" max="4" step="0.02" value="1" style="flex:1; max-width:190px; accent-color:#00d2ff;">
+          <button class="btn-art-action" onclick="resetCropTransform()" style="padding:4px 8px; font-size:0.75rem;">↺ Centrar</button>
+        </div>
+
+        <!-- BOTONES DE CONFIRMACIÓN -->
+        <div style="display:flex; gap:10px; justify-content:center;">
+          <button class="armory-btn-submit" style="flex:1; justify-content:center; padding:10px 14px;" onclick="applyCropAndSave()">✔ APLICAR Y GUARDAR</button>
+          <button class="btn-cancel" style="padding:10px 16px;" onclick="closeCropperModal()">CANCELAR</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE SELECCIÓN DE ESCUADRA DESTINO -->
+  <div id="selectSquadModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 550px;">
+      <button id="btnCloseSelectSquad" class="btn-close-modal" onclick="closeSelectSquadModal()">&times;</button>
+      <div class="tutorial-body">
+        <h2 id="selectSquadModalTitle">AÑADIR A ESCUADRA</h2>
+        <p style="color:#7b96b3; font-size:0.9rem;" id="selectSquadModalSub">Selecciona la escuadra de destino a la que deseas incorporar este operativo:</p>
+        <div id="squadCardsContainer" style="display:flex; flex-direction:column; gap:10px; margin-top:16px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE COMPENDIO OFICIAL: REGLAS, ACCIONES, ÍTEMS Y GLOSARIO -->
+  <div id="compendiumModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 860px;">
+      <button id="btnCloseCompendium" class="btn-close-modal" onclick="closeCompendiumModal()">&times;</button>
+      <div class="tutorial-body">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--glass-border); padding-bottom:10px; margin-bottom:16px;">
+          <div>
+            <h2 style="margin:0; border:none; padding:0; font-size:1.65rem;"><span class="ui-icon icon-rules"></span> COMPENDIO OFICIAL Y GLOSARIO: HALO FLASHPOINT</h2>
+            <p style="margin:4px 0 0 0; color:#7b96b3; font-size:0.85rem; font-family:'Share Tech Mono';">
+              Guía de referencia rápida y reglas esenciales basadas en el trabajo de Peter Gifford ('Universal Head') y Mantic Games.
+            </p>
+          </div>
+        </div>
+
+        <!-- PESTAÑAS DE NAVEGACIÓN DEL COMPENDIO -->
+        <div class="armory-nav-tabs" style="margin-bottom:16px;">
+          <button id="tabCompendiumGlossary" class="armory-tab-btn active" onclick="switchCompendiumTab('glossary')">1. GLOSARIO DE HABILIDADES</button>
+          <button id="tabCompendiumCore" class="armory-tab-btn" onclick="switchCompendiumTab('core')">2. REGLAS BÁSICAS Y RONDAS</button>
+          <button id="tabCompendiumActions" class="armory-tab-btn" onclick="switchCompendiumTab('actions')">3. ACCIONES Y COMBATE</button>
+          <button id="tabCompendiumItems" class="armory-tab-btn" onclick="switchCompendiumTab('items')">4. ÍTEMS Y ARMAS</button>
+          <button id="tabCompendiumAdvanced" class="armory-tab-btn" onclick="switchCompendiumTab('advanced')">5. WAR GAMES Y RECON</button>
+          <button id="tabCompendiumCredits" class="armory-tab-btn" onclick="switchCompendiumTab('credits')">6. CRÉDITOS Y REFERENCIAS</button>
+        </div>
+
+        <!-- PANEL 1: GLOSARIO DE HABILIDADES (CON BUSCADOR EN TIEMPO REAL) -->
+        <div id="panelCompendiumGlossary" class="armory-panel active">
+          <div class="compendium-search-bar">
+            <input type="text" id="compendiumSearchInput" class="compendium-search-input" placeholder="🔍 Buscar habilidad o palabra clave (ej. Blast, Optics, Scout, Smoke)..." oninput="filterCompendiumAbilities()">
+            <span id="compendiumSearchCount" style="font-family:'Share Tech Mono'; font-size:0.8rem; color:#8df5a0; white-space:nowrap;">47 Habilidades</span>
+          </div>
+
+          <div class="compendium-ability-grid" id="compendiumAbilityGrid">
+            <!-- HABILIDADES GENERADAS -->
+            <div class="compendium-card rule-passive" data-name="Acrobatic (Acrobático)">
+              <div class="compendium-header-row"><span class="compendium-title">Acrobatic (Acrobático)</span><span class="compendium-badge">Pasiva</span></div>
+              <div class="compendium-desc">Cada enemigo abatido por este modelo otorga +1 Punto de Victoria (VP) en modos de juego que recompensan VPs por bajas enemigas.</div>
+            </div>
+
+            <div class="compendium-card rule-defense" data-name="Active Camouflage (Camuflaje Activo)">
+              <div class="compendium-header-row"><span class="compendium-title">Active Camouflage (Camuflaje Activo)</span><span class="compendium-badge">Defensiva</span></div>
+              <div class="compendium-desc">Mientras este modelo conserve sus escudos de energía totalmente cargados (al valor inicial), solo se puede trazar Línea de Visión (LOS) hacia él si estás en el mismo cubo o en un cubo adyacente. Si no tiene escudos completos, se puede trazar LOS normalmente pero los disparos sufren un penalizador de -2 dados (-1 si no tiene escudos).</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Blast (Onda Expansiva)">
+              <div class="compendium-header-row"><span class="compendium-title">Blast (Onda Expansiva)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Antes de resolver el daño y otros efectos del arma, todos los modelos en los cubos adyacentes a la explosión (en todas las direcciones) pierden 1 escudo de energía.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Concussive (Contundente)">
+              <div class="compendium-header-row"><span class="compendium-title">Concussive (Contundente)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Si un modelo es atacado con esta arma en un DISPARO o ASALTO y el atacante obtiene más éxitos que el defensor, el objetivo queda Inmovilizado / Derribado (Pinned) además de sufrir cualquier daño. Afecta a todos los modelos si el arma apuntó a un cubo.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Continuous Fire (Fuego Continuo)">
+              <div class="compendium-header-row"><span class="compendium-title">Continuous Fire (Fuego Continuo)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Se beneficia de Volumen de Fuego (2) al disparar (Weight of Fire 2). Al terminar la acción de Disparo actual, el usuario debe realizar una prueba de SUPERVIVENCIA de 3 dados a 2+. Si falla, sufre 1 herida directa (la armadura y escudos no protegen contra este daño). Si esto lo mata, la baja se otorga al rival.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="EMP (Pulso Electromagnético)">
+              <div class="compendium-header-row"><span class="compendium-title">EMP (Pulso Electromagnético)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Esta arma causa que todos los escudos de energía del modelo objetivo y de todos los modelos en su mismo cubo queden completamente agotados. Si apunta a un cubo, afecta a todos los modelos en dicho cubo.</div>
+            </div>
+
+            <div class="compendium-card rule-defense" data-name="Energy Shield (n) (Escudo de Energía)">
+              <div class="compendium-header-row"><span class="compendium-title">Energy Shield (n) (Escudo de Energía)</span><span class="compendium-badge">Defensiva</span></div>
+              <div class="compendium-desc">Inicia la partida con (n) escudos de energía totalmente cargados. Al inicio de cada ronda, recupera 1 escudo agotado (hasta un máximo de n). Se agotan antes de aplicar la armadura del modelo.</div>
+            </div>
+
+            <div class="compendium-card rule-defense" data-name="Energy Shield Barrier (n) (Barrera de Escudo)">
+              <div class="compendium-header-row"><span class="compendium-title">Energy Shield Barrier (n) (Barrera)</span><span class="compendium-badge">Defensiva</span></div>
+              <div class="compendium-desc">Proporciona protección a todos los modelos (aliados o enemigos) en ese mismo cubo contra ataques a distancia. Los ataques agotan primero los escudos de la barrera antes que los propios del modelo. Se retira al agotarse y no se regenera.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Energy Shield Depleter (ESD) (n) (Agotador de Escudos)">
+              <div class="compendium-header-row"><span class="compendium-title">Energy Shield Depleter (ESD) (n)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Al causar impactos con DISPARO o ASALTO, agota inmediatamente (n) escudos de energía del objetivo antes de resolver los impactos restantes normalmente.</div>
+            </div>
+
+            <div class="compendium-card rule-active" data-name="Evade (Evasión)">
+              <div class="compendium-header-row"><span class="compendium-title">Evade (Evasión)</span><span class="compendium-badge">Reacción</span></div>
+              <div class="compendium-desc">Cuando no está inmovilizado y es objetivo de un DISPARO pero no resulta muerto, inmovilizado ni sujeto a movimiento forzado, puede realizar un AVANCE inmediato de 1 cubo (puede detonar un Asalto).</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Explosive (Explosivo)">
+              <div class="compendium-header-row"><span class="compendium-title">Explosive (Explosivo)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Realiza un DISPARO apuntando a un cubo en LOS (no requiere ver una miniatura). Tira 3 dados a 1+ sin modificadores ni rerolls. Éxito = impacta el cubo objetivo; fallo = tira dispersión (scatter) a un cubo adyacente del mismo nivel. No rebota en muros.</div>
+            </div>
+
+            <div class="compendium-card rule-active" data-name="Fast Transition (Transición Rápida)">
+              <div class="compendium-header-row"><span class="compendium-title">Fast Transition (Transición Rápida)</span><span class="compendium-badge">Activa</span></div>
+              <div class="compendium-desc">Al realizar un DISPARO (solo acción corta), puede atacar con 2 armas de disparo que porte a objetivos iguales o distintos. Se resuelven por separado. Si usa el símbolo de disparo de un dado de mando, solo obtiene 1 disparo extra con una de sus armas.</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Fearless (Sin Miedo / Implacable)">
+              <div class="compendium-header-row"><span class="compendium-title">Fearless (Implacable)</span><span class="compendium-badge">Pasiva</span></div>
+              <div class="compendium-desc">Nunca puede quedar Inmovilizado / Derribado (Pinned), incluso por efectos de otras reglas. Otros efectos del ataque se aplican normalmente.</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Fire (Fuego)">
+              <div class="compendium-header-row"><span class="compendium-title">Fire (Fuego)</span><span class="compendium-badge">Estado</span></div>
+              <div class="compendium-desc">Al activarse un modelo con ficha de fuego, puede gastar una acción auxiliar para quitarla. Si no lo hace, sufre 1 herida al final de su activación y luego retira la ficha. Si muere, la baja es para el rival.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Firing Platform (n) (Plataforma de Disparo)">
+              <div class="compendium-header-row"><span class="compendium-title">Firing Platform (n)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Otorga +n dados al realizar acciones de DISPARO.</div>
+            </div>
+
+            <div class="compendium-card rule-active" data-name="Flight (Vuelo)">
+              <div class="compendium-header-row"><span class="compendium-title">Flight (Vuelo)</span><span class="compendium-badge">Movimiento</span></div>
+              <div class="compendium-desc">Puede atravesar cubos sin paredes ni suelos y cambiar de nivel sin escalar. No sufre daño ni queda inmovilizado por caídas. Debe terminar su movimiento en una posición física estable en el tablero.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Frag (n) (Fragmentación)">
+              <div class="compendium-header-row"><span class="compendium-title">Frag (n) (Fragmentación)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Tras impactar con Explosivo o Granada, tira (n) dados a 4+ contra la tirada de SUPERVIVENCIA de 3 dados de cada modelo en el cubo (amigos y enemigos). Si frag obtiene más éxitos, la diferencia son impactos. Si iguala o supera en éxitos, cualquier modelo superviviente queda inmovilizado y es arrojado 1 cubo al azar.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Grenade (Granada)">
+              <div class="compendium-header-row"><span class="compendium-title">Grenade (Granada)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Se lanza con DISPARO a un cubo en alcance. Si no hay LOS directa, ambos deben ser visibles desde arriba. Prueba de 3 dados a 1+ (sin modificadores). Éxito = aterriza en el cubo; fallo = dispersión. Si choca con un muro o borde, rebota y queda en el cubo original.</div>
+            </div>
+
+            <div class="compendium-card rule-defense" data-name="Guarded (Protegido)">
+              <div class="compendium-header-row"><span class="compendium-title">Guarded (Protegido)</span><span class="compendium-badge">Defensiva</span></div>
+              <div class="compendium-desc">Cuando este modelo es objetivo de un DISPARO enfrentado, la tirada del atacante no se beneficia de Headshots (los 8 no explotan).</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Horde (Horda)">
+              <div class="compendium-header-row"><span class="compendium-title">Horde (Horda)</span><span class="compendium-badge">Cuerpo a Cuerpo</span></div>
+              <div class="compendium-desc">En combate cuerpo a cuerpo, gana el bono de modelo aliado normal (+1 dado) más +1 dado adicional por cada otro modelo aliado en el mismo cubo que también tenga la regla Horda.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Implosion (n) (Implosión)">
+              <div class="compendium-header-row"><span class="compendium-title">Implosion (n) (Implosión)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Tras impactar con Explosivo o Granada, tira (n) dados a 4+ contra 3 dados de SUPERVIVENCIA de cada modelo en el cubo. La diferencia de éxitos a favor de la implosión son impactos directos.</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Imposing (Imponente)">
+              <div class="compendium-header-row"><span class="compendium-title">Imposing (Imponente)</span><span class="compendium-badge">Cuerpo a Cuerpo</span></div>
+              <div class="compendium-desc">+1 dado en pruebas de LUCHA (FIGHT) o SUPERVIVENCIA (SURVIVE) durante un ASALTO.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Incendiary (n) (Incendiario)">
+              <div class="compendium-header-row"><span class="compendium-title">Incendiary (n) (Incendiario)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Tira (n) dados de DISPARO sin modificadores vs 3 dados de SUPERVIVENCIA de cada modelo en el cubo. Determina impactos normalmente y además todos los modelos del cubo reciben una ficha de Fuego.</div>
+            </div>
+
+            <div class="compendium-card rule-active" data-name="Jump Pack (Mochila Propulsora)">
+              <div class="compendium-header-row"><span class="compendium-title">Jump Pack (Propulsora)</span><span class="compendium-badge">Movimiento</span></div>
+              <div class="compendium-desc">No sufre daño ni queda inmovilizado por caídas. Puede subir o bajar niveles sin necesidad de escalar, saltar muros sólidos de altura completa de un cubo contando como 1 cubo de movimiento, y cruzar huecos en el suelo de hasta 1 cubo de ancho.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Knockback (Empujón / Retroceso)">
+              <div class="compendium-header-row"><span class="compendium-title">Knockback (Retroceso)</span><span class="compendium-badge">Control</span></div>
+              <div class="compendium-desc">Al ganar una prueba de DISPARO o LUCHA (sin importar si causó heridas), empuja al modelo objetivo a un cubo adyacente del mismo nivel alejándolo del atacante.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Lethal (n) (Letal)">
+              <div class="compendium-header-row"><span class="compendium-title">Lethal (n) (Letal)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Si el objetivo sufre heridas (tras escudos y armadura), sufre (n) heridas adicionales en total. Es acumulativo entre diferentes fuentes.</div>
+            </div>
+
+            <div class="compendium-card rule-defense" data-name="Life Support (Soporte Vital)">
+              <div class="compendium-header-row"><span class="compendium-title">Life Support (Soporte Vital)</span><span class="compendium-badge">Defensiva</span></div>
+              <div class="compendium-desc">De un solo uso. Si este modelo sufre heridas pero no resulta muerto, regresa inmediatamente al estado ileso sin daño. Se activa automáticamente sin coste de acción.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Long (Largo)">
+              <div class="compendium-header-row"><span class="compendium-title">Long (Largo)</span><span class="compendium-badge">Restricción</span></div>
+              <div class="compendium-desc">Una acción de DISPARO normal con esta arma es una acción larga. Un disparo de Fuego a Discreción (Blaze Away) con Rapid Fire sigue siendo acción corta.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Lunge (Embestida)">
+              <div class="compendium-header-row"><span class="compendium-title">Lunge (Embestida)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Se usa con una acción de DISPARO pero solo se beneficia de Tiro Despejado y Posición Elevada. La prueba se realiza con el atributo de LUCHA (FIGHT) del usuario en lugar de DISPARO.</div>
+            </div>
+
+            <div class="compendium-card rule-active" data-name="Medic (Médico)">
+              <div class="compendium-header-row"><span class="compendium-title">Medic (Médico)</span><span class="compendium-badge">Apoyo</span></div>
+              <div class="compendium-desc">Puede realizar una acción auxiliar gratuita para retirar 1 herida sufrida por un modelo aliado en su mismo cubo.</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="One-use (Un Solo Uso)">
+              <div class="compendium-header-row"><span class="compendium-title">One-use (Un Solo Uso)</span><span class="compendium-badge">Consumible</span></div>
+              <div class="compendium-desc">Este ítem o arma solo puede utilizarse una vez en toda la partida. Tras usarse, se descarta.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Optics (Óptica Táctica)">
+              <div class="compendium-header-row"><span class="compendium-title">Optics (Óptica Táctica)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Añade un modificador de +1 dado a las acciones de DISPARO. Los Headshots ocurren con resultados de 7 y 8. No aplica al disparar a discreción con Rapid Fire.</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Pack Mule (Mula de Carga)">
+              <div class="compendium-header-row"><span class="compendium-title">Pack Mule (Mula de Carga)</span><span class="compendium-badge">Logística</span></div>
+              <div class="compendium-desc">Este modelo puede transportar hasta 3 objetos, 2 armas recogidas del suelo y 2 objetivos de escenario simultáneamente.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Rapid Fire (Fuego Rápido)">
+              <div class="compendium-header-row"><span class="compendium-title">Rapid Fire (Fuego Rápido)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Puede disparar normalmente o usar Fuego a Discreción (Blaze Away). Al disparar a discreción, no hay bonos de agachado para nadie ni aplica Óptica, Armadura o AP: tira 4 dados de DISPARO vs 3 de SUPERVIVENCIA. Si el atacante tiene más éxitos, el objetivo pierde 1 escudo y queda Inmovilizado (Pinned).</div>
+            </div>
+
+            <div class="compendium-card rule-active" data-name="Scout (Explorador)">
+              <div class="compendium-header-row"><span class="compendium-title">Scout (Explorador)</span><span class="compendium-badge">Despliegue</span></div>
+              <div class="compendium-desc">Tras el despliegue y antes de la primera ronda, realiza un AVANCE gratuito de 1 cubo (no puede entrar en cubos enemigos, pero puede recoger ítems u objetos). Si tiene SP 1, al reaparecer (respawn) puede agacharse gratis. Mantiene la ficha de agachado al avanzar.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Smash (n) (Aplastamiento)">
+              <div class="compendium-header-row"><span class="compendium-title">Smash (n) (Aplastamiento)</span><span class="compendium-badge">Cuerpo a Cuerpo</span></div>
+              <div class="compendium-desc">Otorga +n dados al realizar pruebas de LUCHA (FIGHT) en combate.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Sniper Scope (Mira Telescópica)">
+              <div class="compendium-header-row"><span class="compendium-title">Sniper Scope (Mira Francotirador)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Al disparar, puede elegir acción corta normal (sin bono) o acción larga. Si elige acción larga, gana +2 dados a la prueba y los Headshots se obtienen con 7 y 8.</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Stable (Estable)">
+              <div class="compendium-header-row"><span class="compendium-title">Stable (Estable)</span><span class="compendium-badge">Pasiva</span></div>
+              <div class="compendium-desc">Ignora la palabra clave *Long* en cualquier arma si realiza un AVANCE seguido inmediatamente de un DISPARO en esa activación.</div>
+            </div>
+
+            <div class="compendium-card rule-defense" data-name="Stealthy (Sigiloso)">
+              <div class="compendium-header-row"><span class="compendium-title">Stealthy (Sigiloso)</span><span class="compendium-badge">Defensiva</span></div>
+              <div class="compendium-desc">Cuando este modelo es objetivo de una acción de DISPARO, el atacante sufre un penalizador de -1 dado a su prueba.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Sticky (Pegajoso)">
+              <div class="compendium-header-row"><span class="compendium-title">Sticky (Pegajoso)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Si se obtienen 3 o más éxitos en la prueba de DISPARO, agota inmediatamente todos los escudos de energía de 1 modelo impactado (a elección del atacante si apunta a un cubo).</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Stoic (Estoico)">
+              <div class="compendium-header-row"><span class="compendium-title">Stoic (Estoico)</span><span class="compendium-badge">Pasiva</span></div>
+              <div class="compendium-desc">Nunca puede ser Inmovilizado / Derribado (Pinned), aunque otros efectos del ataque se aplican. Además, este modelo nunca puede realizar la acción de Agacharse (Crouch).</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Support Weapon (Arma Pesada de Apoyo)">
+              <div class="compendium-header-row"><span class="compendium-title">Support Weapon (Apoyo)</span><span class="compendium-badge">Restricción</span></div>
+              <div class="compendium-desc">Quien porte esta arma no puede esprintar ni lanzar granadas, su SPEED máximo se reduce a 1 y no tira dados en pruebas de LUCHA (FIGHT). Si un modelo entra en un cubo con un arma de apoyo y la recoge, su acción de movimiento termina de inmediato.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Suppression (Supresión)">
+              <div class="compendium-header-row"><span class="compendium-title">Suppression (Supresión)</span><span class="compendium-badge">Control</span></div>
+              <div class="compendium-desc">Además de causar impactos y heridas normales, todos los modelos (de ambos bandos) en el cubo del objetivo quedan Inmovilizados / Derribados (Pinned).</div>
+            </div>
+
+            <div class="compendium-card rule-active" data-name="Tactician (n) (Estratega)">
+              <div class="compendium-header-row"><span class="compendium-title">Tactician (n) (Estratega)</span><span class="compendium-badge">Mando</span></div>
+              <div class="compendium-desc">Mientras esté vivo sobre el tablero: añade (n) dados de mando a la tirada inicial de ronda, permite relanzar (n) dados de mando en ese momento, y al final de ronda puede conservar hasta (n) dados no gastados para la siguiente ronda. Es acumulativo entre varios estrategas.</div>
+            </div>
+
+            <div class="compendium-card rule-passive" data-name="Two-uses (Dos Usos)">
+              <div class="compendium-header-row"><span class="compendium-title">Two-uses (Dos Usos)</span><span class="compendium-badge">Consumible</span></div>
+              <div class="compendium-desc">Este ítem o arma puede usarse hasta dos veces en la partida antes de agotarse y descartarse.</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Unstoppable (Imparable)">
+              <div class="compendium-header-row"><span class="compendium-title">Unstoppable (Imparable)</span><span class="compendium-badge">Cuerpo a Cuerpo</span></div>
+              <div class="compendium-desc">Al detonar un ASALTO moviéndose hacia un cubo con enemigos, recibe un bonificador de +3 dados a la prueba de LUCHA (en lugar del +2 normal por carga).</div>
+            </div>
+
+            <div class="compendium-card rule-attack" data-name="Weight of fire (n) (Volumen de Fuego)">
+              <div class="compendium-header-row"><span class="compendium-title">Weight of fire (n)</span><span class="compendium-badge">Ataque</span></div>
+              <div class="compendium-desc">Permite relanzar hasta (n) dados al realizar pruebas de DISPARO. Es acumulativo si procede de múltiples fuentes.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 2: REGLAS BÁSICAS Y RONDAS -->
+        <div id="panelCompendiumCore" class="armory-panel">
+          <div class="compendium-subheading"><span class="ui-icon icon-recon"></span> PREPARACIÓN DE LA PARTIDA (SETUP)</div>
+          <p style="font-size:0.9rem; color:#cbd5e1; line-height:1.5;">
+            1. Seleccionar escuadras y escenario. Colocar escenografía alineada con la cuadrícula de cubos.<br>
+            2. Colocar marcadores de objetivos y puntos de reaparición (respawn) según el escenario (si hay edificios, siempre en el nivel más alto).<br>
+            3. Barajar los tokens de objeto boca abajo. Lanzar 2 dados D8 (uno para columna y otro para fila) para colocar 8 objetos en la cuadrícula (repetir si caen en zona de despliegue).<br>
+            4. Colocar 4 marcadores de Weapon Drop boca arriba. Cada jugador elige un pool de 10 armas (máximo 2 copias de cada una). Se lanza 1 D8: el perdedor elige el pool de 10 armas a usar en la partida; el ganador elige zona de despliegue y si toma el primer o segundo turno en la Ronda 1.
+          </p>
+
+          <div class="compendium-subheading"><span class="ui-icon icon-dice"></span> PRUEBAS DE DADOS (DICE TESTS)</div>
+          <p style="font-size:0.9rem; color:#cbd5e1; line-height:1.5;">
+            • Las pruebas indican la cantidad de dados D8, la dificultad objetivo y los éxitos requeridos. El símbolo <strong>(X)</strong> representa una <strong>prueba enfrentada</strong>: quien obtenga más éxitos gana el test.<br>
+            • Si relanzas un dado, debes aceptar el segundo resultado. Nunca se puede relanzar el mismo dado dos veces.<br>
+            • Si un modelo tiene un valor de <code>'-'</code> en una característica, no puede realizar dicha acción y cuenta como 0 dados y 0 éxitos.<br>
+            • <strong>Headshots (Tiros a la Cabeza):</strong> Cada resultado de <strong>8</strong> cuenta como éxito y permite <strong>lanzar 1 dado D8 extra</strong> de forma continua e indefinida mientras sigan saliendo 8s (no aplica a tiradas de dispersión ni weapon drops).
+          </p>
+
+          <div class="compendium-subheading"><span class="ui-icon icon-reroll"></span> ESTRUCTURA DE LA RONDA DE JUEGO</div>
+          <div style="background:rgba(0,0,0,0.3); border:1px solid #283c54; padding:12px; border-radius:4px; margin-bottom:12px;">
+            <p style="font-size:0.9rem; color:#8df5a0; font-weight:bold; margin-bottom:4px;">1. FASE DE MANDO (ROLL COMMAND):</p>
+            <p style="font-size:0.86rem; color:#cbd5e1; margin-bottom:8px;">
+              • Revelar 1 arma de drop y lanzar 1 D8 para posicionarla (desde ronda 2 se coloca 1 ítem adicional).<br>
+              • Cada jugador lanza 2 dados de mando (+ dados de Estratega / Tactician). El jugador que va primero puede relanzar dados si tiene Tacticians. Se guardan y se gastan durante la ronda.
+            </p>
+            <p style="font-size:0.9rem; color:#00d2ff; font-weight:bold; margin-bottom:4px;">2. FASE DE ACTIVACIONES ALTERNAS:</p>
+            <p style="font-size:0.86rem; color:#cbd5e1; margin-bottom:8px;">
+              • Por turnos, cada jugador activa 1 modelo no activado y realiza <strong>1 acción larga</strong> o <strong>2 acciones cortas</strong>. Al finalizar, se le coloca una ficha de activación.<br>
+              • Un modelo solo puede realizar cada tipo de acción una vez por turno (las acciones gratuitas de mando no cuentan contra este límite).<br>
+              • Si tienes menos modelos por activar que tu rival, puedes pasar el turno.
+            </p>
+            <p style="font-size:0.9rem; color:#facc15; font-weight:bold; margin-bottom:4px;">3. FASE FINAL (END PHASE):</p>
+            <p style="font-size:0.86rem; color:#cbd5e1;">
+              • Verificar condiciones de victoria del escenario. Retirar fichas de activación y descartar dados de mando sobrantes (salvo los retenidos por Tactician).<br>
+              • El jugador que terminó de activar primero sus modelos en esta ronda toma la iniciativa en la siguiente ronda.
+            </p>
+          </div>
+
+          <div class="compendium-subheading"><span class="ui-icon icon-armory"></span> SÍMBOLOS DE DADOS DE MANDO</div>
+          <table class="compendium-table">
+            <thead><tr><th>Símbolo</th><th>Efecto de Mando Oficial</th></tr></thead>
+            <tbody>
+              <tr><td><strong>+1 MODELO</strong></td><td>No puede usarse en el 1er turno de la ronda. Permite activar un segundo modelo consecutivo antes de ceder el turno al oponente. Alternativamente, en la fase final puede gastarse para robar el primer o segundo turno de la siguiente ronda.</td></tr>
+              <tr><td><strong>DADO <span class="ui-icon icon-dice"></span></strong></td><td>Añade +1 dado a cualquier prueba de DISPARO, LUCHA o SUPERVIVENCIA (incluso en el turno rival). Se debe declarar antes de tirar.</td></tr>
+              <tr><td><strong>ADVANCE</strong></td><td>El modelo activo realiza una acción gratuita de AVANCE de 1 cubo (incluso si ya avanzó o esprintó).</td></tr>
+              <tr><td><strong>SHOOT</strong></td><td>El modelo activo realiza una acción gratuita de DISPARO.</td></tr>
+              <tr><td><strong>ASSAULT</strong></td><td>El modelo activo realiza una acción gratuita de ASALTO cuerpo a cuerpo.</td></tr>
+              <tr><td><strong>ORDEN ESPECIAL (Snapshot)</strong></td><td>Reacción Spartan: Si un enemigo mueve o esprinta hacia tu cubo provocando un asalto gratuito, puedes declarar Snapshot para hacer un disparo corto a bocajarro antes del asalto (si lo derribas o mueves, el asalto rival se cancela).</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PANEL 3: ACCIONES Y COMBATE -->
+        <div id="panelCompendiumActions" class="armory-panel">
+          <div class="compendium-subheading"><span class="ui-icon icon-battle"></span> ACCIONES PRINCIPALES DE LOS MODELOS</div>
+          <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">
+            • <strong>ADVANCE (Corta):</strong> Mueve hasta su primer valor de SPEED en cubos. Se permite movimiento diagonal. Capacidad: máximo 2 modelos del mismo bando por cubo (y hasta 4 en total de ambos bandos).<br>
+            • <strong>SPRINT (Larga):</strong> Mueve hasta su segundo valor de SPEED en cubos. No puede realizarse si comparte cubo con un enemigo.<br>
+            • <strong>SHOOT (Corta):</strong> Requiere arma a distancia con alcance (R). Rango = mayor distancia horizontal o diferencia de altura en cubos. Requiere LOS (vista de ojo de la miniatura).<br>
+            • <strong>ASSAULT (Larga / Gratuito por carga):</strong> Solo con armas de rango CC. Tira 3 dados de FIGHT vs 3 dados de SURVIVE del defensor. La diferencia de éxitos son impactos directos.<br>
+            • <strong>STAND UP (Corta):</strong> Un modelo inmovilizado (Pinned) debe elegir esta acción como su primera acción para ponerse de pie.<br>
+            • <strong>CROUCH (Corta):</strong> Coloca ficha de Agachado (otorga +1 dado al disparar y defenderse mientras no se mueva).<br>
+            • <strong>AUXILIAR (Corta):</strong> Para interactuar con objetivos de escenario o usar habilidades especiales (máximo 2 distintas por turno).
+          </p>
+
+          <div class="compendium-subheading"><span class="ui-icon icon-recon"></span> MODIFICADORES OFICIALES DE COMBATE</div>
+          <table class="compendium-table">
+            <thead><tr><th>Acción</th><th>Circunstancia</th><th>Modificador</th></tr></thead>
+            <tbody>
+              <tr><td><strong>DISPARO (Atacante)</strong></td><td>Tiro Despejado (Clear Shot) a toda la miniatura</td><td><strong style="color:#8df5a0;">+2 dados</strong></td></tr>
+              <tr><td><strong>DISPARO (Atacante)</strong></td><td>Posición Elevada (High Ground) respecto al blanco</td><td><strong style="color:#8df5a0;">+1 dado</strong></td></tr>
+              <tr><td><strong>DISPARO (Atacante)</strong></td><td>El atacante está Agachado (Crouched)</td><td><strong style="color:#8df5a0;">+1 dado</strong></td></tr>
+              <tr><td><strong>DISPARO (Atacante)</strong></td><td>Fuego Amigo (aliados en el cubo del objetivo)</td><td><strong style="color:#ef4444;">-2 dados</strong></td></tr>
+              <tr><td><strong>SUPERVIVENCIA (Defensa)</strong></td><td>El defensor está Agachado (Crouched)</td><td><strong style="color:#8df5a0;">+1 dado</strong></td></tr>
+              <tr><td><strong>ASALTO (Atacante)</strong></td><td>Detonado por mover hacia el cubo (Carga)</td><td><strong style="color:#8df5a0;">+2 dados</strong></td></tr>
+              <tr><td><strong>ASALTO (Ambos)</strong></td><td>Otro modelo aliado en el mismo cubo</td><td><strong style="color:#8df5a0;">+1 dado</strong></td></tr>
+              <tr><td><strong>ASALTO (Ambos)</strong></td><td>El oponente está herido (Injured)</td><td><strong style="color:#8df5a0;">+1 dado</strong></td></tr>
+              <tr><td><strong>ASALTO (Atacante)</strong></td><td>El oponente estaba inmovilizado (Pinned) al iniciar</td><td><strong style="color:#8df5a0;">+1 dado</strong></td></tr>
+            </tbody>
+          </table>
+
+          <div class="compendium-subheading"><span class="ui-icon icon-shield"></span> DAÑO, ESCUDOS, ARMADURA Y MUERTE</div>
+          <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">
+            1. <strong>Escudos de Energía:</strong> Cada impacto recibido agota 1 escudo (voltea ficha a rojo) hasta agotarlos.<br>
+            2. <strong>Armadura y AP:</strong> Los impactos restantes se reducen por el valor de ARMOUR (AR) de la miniatura, restando el valor de Armour Piercing (AP) del arma.<br>
+            3. <strong>Heridas:</strong> Cada impacto no mitigado causa 1 herida (Wound). Si las heridas igualan o superan la SALUD (HP), el modelo muere y va a la zona de Respawn.<br>
+            4. <strong>Reaparición (Respawn):</strong> Al activarse en un turno futuro, entra adyacente a un marcador de respawn con un Avance en nivel 1, con vida y escudos al máximo.
+          </p>
+
+          <div class="compendium-subheading">🧱 MOVIMIENTO FORZADO, MUROS Y CAÍDAS</div>
+          <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">
+            • <strong>Chocar contra Muros:</strong> Si un empujón es bloqueado por un muro, el modelo tira 3 dados de SURVIVE vs 4 dados a 4+ del muro. Si gana el muro, el modelo queda inmovilizado y sufre heridas iguales a la diferencia.<br>
+            • <strong>Caídas por Gravedad:</strong> Caer 1 cubo no requiere prueba. 2 cubos = Gravedad tira 4 dados a 4+; 3 cubos = 5 dados; 4+ cubos = 6 dados vs 3 de SURVIVE. Si gana la gravedad, queda inmovilizado y sufre heridas.
+          </p>
+        </div>
+
+        <!-- PANEL 4: ÍTEMS Y ARMAS RECOGIDAS -->
+        <div id="panelCompendiumItems" class="armory-panel">
+          <div class="compendium-subheading">🎒 REGLAS DE TRANSPORTE Y EQUIPO TÁCTICO</div>
+          <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">
+            • Cada modelo puede portar hasta <strong>2 ítems</strong> y <strong>1 arma extra</strong> en su ranura PICK UP.<br>
+            • Mover a través de un cubo con objetos permite recoger 1 ítem, 1 arma y 1 objeto de escenario como acción gratuita (si no hay enemigos).<br>
+            • <strong>Tipo I:</strong> Efecto continuo mientras se porta.<br>
+            • <strong>Tipo II:</strong> Se activa como acción gratuita por el modelo activo.<br>
+            • <strong>Tipo III:</strong> Se usa en conjunto con una acción de DISPARO.
+          </p>
+
+          <div class="compendium-ability-grid">
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Active Camouflage (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Concede la regla Camuflaje Activo. Se pierde si el modelo esprinta, lucha o dispara.</div>
+            </div>
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Drop Wall (Muro Desplegable) (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Despliega una Barrera de Escudo de Energía (2) en el cubo del portador.</div>
+            </div>
+            <div class="compendium-card item-type-3">
+              <div class="compendium-header-row"><span class="compendium-title">Explosive Ammo (Munición Explosiva) (Tipo III)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Se usa con un arma de disparo para ganar +1 dado y Letal (1). No combinable con armas de Explosivo, Granada ni Lunge.</div>
+            </div>
+            <div class="compendium-card item-type-3">
+              <div class="compendium-header-row"><span class="compendium-title">Fragmentation Grenade (Granada Frag) (Tipo III)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Perfil R3, AP1, Frag (5), Granada, Un solo uso.</div>
+            </div>
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Grappleshot (Gancho Táctico) (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Permite realizar un AVANCE gratuito de 1 cubo (acumulable con otras acciones de movimiento), o recoger un objeto/arma en LOS en un cubo adyacente.</div>
+            </div>
+            <div class="compendium-card item-type-1">
+              <div class="compendium-header-row"><span class="compendium-title">Hardlight Shield (Escudo Hardlight) (Tipo I)</span><span class="compendium-badge">Continuo</span></div>
+              <div class="compendium-desc">Otorga +1 ARMOUR (AR). Se descarta al recibir la primera herida.</div>
+            </div>
+            <div class="compendium-card item-type-1">
+              <div class="compendium-header-row"><span class="compendium-title">Health Pack (Botiquín de Salud) (Tipo I)</span><span class="compendium-badge">Continuo</span></div>
+              <div class="compendium-desc">Otorga la regla Soporte Vital (Life Support). Como acción auxiliar puede consumirse para curar todo el daño actual.</div>
+            </div>
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Overshield (Sobreescudo) (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Añade +1 escudo de energía hasta que sea utilizado. Se agota antes que los escudos base del operativo.</div>
+            </div>
+            <div class="compendium-card item-type-3">
+              <div class="compendium-header-row"><span class="compendium-title">Plasma Grenade (Granada de Plasma) (Tipo III)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Perfil R3, AP2, Frag (4), Granada, Letal (1), Pegajosa (Sticky), Un solo uso.</div>
+            </div>
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Quantum Translocator (Translocador) (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Se coloca el marcador QT en el cubo antes de mover/esprintar. Hasta el final de la activación, si estás a 2 cubos o menos, puedes regresar al marcador sin ataques de oportunidad ni atravesar terreno.</div>
+            </div>
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Shroud Screen (Pantalla de Humo) (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Bloquea toda Línea de Visión hacia, desde o a través de su cubo durante el resto de la ronda.</div>
+            </div>
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Threat Sensor (Sensor de Amenazas) (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Marca un cubo objetivo. Durante el resto de la ronda, todos los aliados tienen Línea de Visión a ese cubo, sus miniaturas y cubos adyacentes.</div>
+            </div>
+            <div class="compendium-card item-type-2">
+              <div class="compendium-header-row"><span class="compendium-title">Thruster (Propulsor) (Tipo II)</span><span class="compendium-badge">1 Uso</span></div>
+              <div class="compendium-desc">Añade +1 a la VELOCIDAD (SPEED) para una acción normal de Avance o Sprint antes de iniciar el movimiento.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 5: WAR GAMES Y RECON -->
+        <div id="panelCompendiumAdvanced" class="armory-panel">
+          <div class="compendium-subheading"><span class="ui-icon icon-winner"></span> CONSTRUCCIÓN WAR GAMES POR PUNTOS</div>
+          <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">
+            • Acordar un límite de puntos (150 P pequeña, 200 P estándar oficial Mantic, 250 P+ grande).<br>
+            • Construir una lista con perfiles de unidad, armas extras, granadas, ítems y mejoras de órdenes.<br>
+            • <strong>Regla de Leyendas (Legends):</strong> Solo 1 modelo con la palabra Legend por escuadra. Cuenta como 2 miniaturas.<br>
+            • Al morir, el equipo adquirido por puntos no se pierde ni se deja en el suelo: regresa con el modelo al reaparecer.
+          </p>
+
+          <div class="compendium-subheading"><span class="ui-icon icon-recon"></span> PROCEDIMIENTO AVANZADO DE RECON / INICIATIVA</div>
+          <p style="font-size:0.88rem; color:#cbd5e1; line-height:1.5;">
+            <strong>1. Test de Recon:</strong> Ambos jugadores tiran 5 dados D8 con dificultad <strong>5+</strong>. Cada resultado de 5, 6, 7 y 8 es un éxito. Quien obtenga más éxitos gana la iniciativa (repetir en caso de empate).<br>
+            <strong>2. Tirada de Efectos de Recon:</strong><br>
+            • <strong>Ganador:</strong> Lanza un número de dados D8 igual a la diferencia de éxitos (máximo 2 dados). Si tira 2 dados y coinciden, relanza 1 hasta obtener dos distintos.<br>
+            • <strong>Perdedor:</strong> Lanza exactamente 1 dado D8.<br>
+            <strong>3. Despliegue:</strong> El ganador elige al jugador inicial, quien elige zona de despliegue, despliega sus miniaturas y tendrá el primer turno en la Ronda 1.<br>
+            <strong>4. Ejecutar Efectos de Recon:</strong> Se resuelven las ventajas obtenidas de las tablas.<br>
+            <strong>5. Movimientos Scout:</strong> Los modelos con la habilidad Scout realizan su avance gratuito.<br>
+            <strong>6. Iniciar Ronda 1.</strong>
+          </p>
+
+          <div class="compendium-subheading"><span class="ui-icon icon-dice"></span> TABLAS OFICIALES DE EFECTOS DE RECON (D8)</div>
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">
+            <div style="background:rgba(0,0,0,0.3); border:1px solid #8df5a0; border-radius:4px; padding:10px;">
+              <strong style="color:#8df5a0;"><span class="ui-icon icon-winner"></span> Efectos del Ganador (1 o 2 dados):</strong>
+              <ul style="padding-left:16px; margin-top:6px; font-size:0.82rem; color:#cbd5e1; line-height:1.45;">
+                <li><strong>1:</strong> Mira 3 fichas de objeto en secreto y regrésalas al cubo de donde salieron.</li>
+                <li><strong>2:</strong> Elige al azar 1 arma boca abajo y colócala en un Weapon Drop de tu elección.</li>
+                <li><strong>3:</strong> Coloca 1 ficha de objeto adicional boca abajo en un cubo a tu elección (fuera de zonas de despliegue).</li>
+                <li><strong>4:</strong> Otorga a uno de tus modelos un objeto de Granada de Fragmentación.</li>
+                <li><strong>5:</strong> 2 modelos aliados pueden realizar un AVANCE de 1 cubo cada uno (sin activarse ni entrar en cubos enemigos).</li>
+                <li><strong>6:</strong> Elige 1 cubo: todos los modelos en él quedan Inmovilizados (Pinned).</li>
+                <li><strong>7:</strong> 2 modelos aliados pueden realizar la acción de Agacharse (Crouch) sin activarse.</li>
+                <li><strong>8:</strong> Elige 1 cubo: gana Barrera de Escudo de Energía (2) en la Ronda 1.</li>
+              </ul>
+            </div>
+            <div style="background:rgba(0,0,0,0.3); border:1px solid #facc15; border-radius:4px; padding:10px;">
+              <strong style="color:#facc15;"><span class="ui-icon icon-shield"></span> Efectos del Perdedor (1 dado):</strong>
+              <ul style="padding-left:16px; margin-top:6px; font-size:0.82rem; color:#cbd5e1; line-height:1.45;">
+                <li><strong>1-2:</strong> Mira 1 ficha de objeto en secreto y regrésala boca abajo a su cubo.</li>
+                <li><strong>3-4:</strong> 1 modelo aliado puede realizar un AVANCE de 1 cubo sin activarse ni entrar a cubos con enemigos.</li>
+                <li><strong>5-6:</strong> 1 modelo aliado puede realizar la acción de Agacharse (Crouch) sin activarse.</li>
+                <li><strong>7-8:</strong> Otorga a uno de tus modelos un objeto de Munición Explosiva.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL 6: CRÉDITOS Y REFERENCIAS -->
+        <div id="panelCompendiumCredits" class="armory-panel">
+          <div class="credits-section" style="margin-top:0;">
+            <h3><span class="ui-icon icon-armory"></span> AUTORÍA, FUENTES Y RECONOCIMIENTO OFICIAL</h3>
+            <p>
+              <strong>Autor de la Guía de Reglas y Resumen:</strong> Las reglas, diagramas, tablas y glosario de habilidades de este compendio han sido adaptados de la prestigiosa guía de referencia de <strong>Peter Gifford ('Universal Head')</strong>, fundador de <a href="https://orderofgamers.com" target="_blank" rel="noopener">The Esoteric Order of Gamers (orderofgamers.com)</a>.
+            </p>
+            <p>
+              Puedes consultar su perfil en BoardGameGeek y apoyar su continuo trabajo para la comunidad lúdica en:
+              <br>
+              🔗 <strong><a href="https://boardgamegeek.com/profile/UniversalHead" target="_blank" rel="noopener">Perfil de UniversalHead en BoardGameGeek</a></strong>
+              <br>
+              🌐 <strong><a href="https://orderofgamers.com" target="_blank" rel="noopener">Sitio Oficial de The Esoteric Order of Gamers</a></strong>
+            </p>
+            <p>
+              <strong>Desarrollo del Visor Táctico:</strong> Esta aplicación web interactiva ha sido programada y mantenida de forma independiente por <strong><a href="https://boardgamegeek.com/profile/mano89" target="_blank" rel="noopener">mano89</a></strong> para la comunidad de jugadores de Halo: Flashpoint y BoardGameGeek.
+            </p>
+            <p>
+              <strong>Base de Datos y Adaptación al Español:</strong> Gracias a <strong><a href="https://boardgamegeek.com/profile/josanto" target="_blank" rel="noopener">josanto</a></strong> por el <a href="https://boardgamegeek.com/filepage/319002/army-builder-en-g-sheets-es" target="_blank" rel="noopener">Army Builder ES en Google Sheets</a>.
+            </p>
+            <p style="font-size:0.8rem; color:#64748b; margin-top:10px;">
+              Halo: Flashpoint © Mantic Games (2024). Halo, Master Chief, Spartans, logotipos y universo © Microsoft Corporation y Halo Studios. Todos los derechos reservados. Uso con fines educativos y de consulta sin ánimo de lucro.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE MANUAL Y GUÍA DE USO COMPLETA -->
+  <div id="helpModal" class="modal-overlay">
+    <div class="modal-content">
+      <button id="btnCloseHelp" class="btn-close-modal">&times;</button>
+      <div class="tutorial-body">
+        <h2>GUÍA DE USO Y MANUAL TÁCTICO: HALO FLASHPOINT</h2>
+        <p style="font-size:1.05rem; color:#d0dbe8; margin-bottom:16px;">
+          Bienvenido al <strong>Visor Táctico para Halo: Flashpoint</strong>, la suite comunitaria definitiva para explorar operativos, gestionar listas de ejército competitivas y casuales, simular combates en mesa y generar dossiers de combate listos para imprimir.
+        </p>
+
+        <h3>1. Exploración de Operativos y Base de Datos</h3>
+        <ul>
+          <li><strong>Filtros Inmediatos:</strong> Aísla operativos por facción (UNSC o Desterrados) o usa el buscador en tiempo real para localizar cualquier miniatura por nombre.</li>
+          <li><strong>Estadísticas Oficiales en Tarjeta:</strong>
+            <ul>
+              <li><strong>RA (Ranged):</strong> Dados para pruebas de ataque a distancia.</li>
+              <li><strong>FI (Fight):</strong> Dados para combate cuerpo a cuerpo y asaltos.</li>
+              <li><strong>SV (Survive):</strong> Dados para pruebas de defensa y supervivencia.</li>
+              <li><strong>SP (Speed):</strong> Puntos de movimiento estándar / carrera.</li>
+              <li><strong>AR (Armor):</strong> Resistencia física a impactos que reduce el daño.</li>
+              <li><strong>HP (Health):</strong> Puntos de herida del modelo.</li>
+              <li><strong>SH (Shield):</strong> Puntos de Escudo de Energía (se agotan primero y se recargan al inicio de cada ronda).</li>
+            </ul>
+          </li>
+          <li><strong>Palabras Clave Interactivas:</strong> Toca cualquier palabra clave en la tarjeta de combate de una unidad o arma para abrir instantáneamente su regla oficial completa sin salir de la vista.</li>
+        </ul>
+
+        <h3>2. Creación y Gestión de Escuadras</h3>
+        <ul>
+          <li><strong>Añadir a Escuadra:</strong> Pulsa <strong>[ ➕ AÑADIR A ESCUADRA ]</strong> en cualquier tarjeta. Si tienes más de una escuadra creada, se abrirá un menú táctico para seleccionar a cuál asignarla.</li>
+          <li><strong>Panel de Escuadras (Pestaña MIS ESCUADRAS):</strong>
+            <ul>
+              <li><strong>Crear nueva escuadra:</strong> Pulsa el botón <strong>[+]</strong> e ingresa el nombre deseado.</li>
+              <li><strong>Renombrar escuadra:</strong> Pulsa el botón del lápiz <strong>[✏️]</strong> para cambiar el nombre de la escuadra activa en cualquier momento.</li>
+              <li><strong>Eliminar o vaciar:</strong> Pulsa <strong>[-]</strong> para borrar la escuadra o <strong>[ VACIAR ESCUADRA ]</strong> para remover todos sus operativos.</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>3. Modos de Juego: Draft vs War Games</h3>
+        <ul>
+          <li><strong>MODO DRAFT (Básico / Casual):</strong> Los operativos usan estrictamente sus armas de serie y su coste base original de carta. Todo el equipamiento adicional se recoge sobre el tablero de juego.</li>
+          <li><strong>MODO WAR GAMES (Competitivo Oficial Mantic):</strong> Construcción de listas a puntos (estándar de <strong>200 P</strong>, o límites de 150 P, 250 P, 300 P y Libre).
+            <ul>
+              <li><strong>Personalizar Operativo [⚙️]:</strong> Pulsa <em>[⚙️ PERSONALIZAR WARGAME]</em> en la lista de tu escuadra para asignarle un arma dedicada cuerpo a cuerpo (CC), arma principal de disparo, secundaria de respaldo, granadas iniciales y objetos tácticos con sus costes oficiales en puntos.</li>
+              <li><strong>Órdenes y Mejoras [<span class="ui-icon icon-armory"></span>]:</strong> Pulsa <em>[🎖️ ÓRDENES Y MEJORAS DE ESCUADRA]</em> para adquirir órdenes tácticas de mando y mejoras de ejército para tu lista.</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>4. Campo de Batalla y Dados Digitales (<span class="ui-icon icon-battle"></span>)</h3>
+        <ul>
+          <li><strong>Marcador Superior de Partida:</strong> Controla la <strong>Ronda actual (1 a 10)</strong>, los <strong>Puntos de Victoria (VP)</strong> de ambos jugadores y edita sus nombres haciendo clic sobre ellos (limitados a 12 caracteres para mantener una interfaz limpia). Con el botón <strong>↺ Reset</strong> reinicias la partida y desbloqueas las tiradas de Recon.</li>
+          <li><strong>Simulador de Combate D8:</strong> Enfrenta atacante vs defensor con dados automáticos, modificadores por posición y la regla oficial de <strong>Headshots continuos</strong> (cada resultado de 8 otorga dados extra de forma sucesiva).</li>
+          <li><strong>Gestor de Dados de Mando Dual:</strong> Gestiona individualmente los dados de mando de cada jugador, con contador de dados disponibles y el botón <strong>TACTICIAN</strong> para relanzar dados no gastados.</li>
+          <li><strong>Ruleta de Dispersión 3x3:</strong> Animación giratoria tipo ruleta para resolver el desvío de granadas y disparos explosivos en las 8 direcciones oficiales.</li>
+          <li><strong>Recon e Iniciativa Oficial:</strong>
+            <ul>
+              <li><strong>Test de 5 Dados a 5+:</strong> Tirada simultánea para ambos jugadores. En caso de empate se solicita relanzar.</li>
+              <li><strong>Ventaja para Ganador y Perdedor:</strong> El ganador lanza dados según la diferencia de éxitos (máximo 2 dados, relanzando duplicados automáticamente). El perdedor lanza 1 dado.</li>
+              <li><strong>Bloqueo Permanente:</strong> Una vez consultada la ventaja, los dados de efecto quedan bloqueados para evitar alteraciones hasta el reinicio de la partida con el botón Reset superior.</li>
+            </ul>
+          </li>
+        </ul>
+
+        <h3>5. Barracones y Armería (Taller Táctico <span class="ui-icon icon-armory"></span>)</h3>
+        <ul>
+          <li><strong>Centro de Personalización y Modding:</strong> Diseña tus propias palabras clave, forja armas nuevas y recluta operativos a la medida para expansiones o reglas caseras.</li>
+          <li><strong>Fotos de tus Miniaturas Pintadas con Recorte Circular:</strong> Haz clic sobre la foto de cualquier operativo para subir la foto de tu miniatura real. Incluye un encuadre interactivo para arrastrar y aplicar zoom con la rueda del ratón o los controles táctiles.</li>
+          <li><strong>Logística y Respaldos:</strong> Exporta e importa tus listas y creaciones en formato JSON, o recarga la base de datos oficial en Excel.</li>
+        </ul>
+
+        <h3>6. Compendio de Reglas y Glosario (<span class="ui-icon icon-rules"></span>)</h3>
+        <p style="font-size:0.9rem; color:#cbd5e1;">
+          Accede en cualquier momento mediante el botón <strong><span class="ui-icon icon-rules"></span></strong> de la cabecera o el botón <strong><span class="ui-icon icon-rules"></span> REGLAS Y GLOSARIO OFICIAL</strong> en el menú lateral para consultar las 47 habilidades oficiales con buscador en tiempo real, las reglas completas de movimiento, terreno, caídas, combate, transporte de ítems y tablas de Recon.
+        </p>
+
+        <h3>7. Impresión de Dossiers de Combate A4</h3>
+        <ul>
+          <li>Pulsa <strong>[ IMPRIMIR ESCUADRA ACTUAL ]</strong> (o <code>Ctrl + P</code>) para generar una hoja limpia de alto contraste sin fondos oscuros.</li>
+          <li>Distribución optimizada (3 a 4 modelos por página), salto de página inteligente y hoja final de glosario consolidado con todas las reglas de la escuadra sin duplicados.</li>
+        </ul>
+
+        <div class="credits-section">
+          <h3>AVISO LEGAL, CRÉDITOS Y DERECHOS DE AUTOR</h3>
+          <p>
+            <strong>Desarrollo de la Aplicación:</strong> Esta herramienta digital ha sido creada y desarrollada de forma independiente por el usuario <strong><a href="https://boardgamegeek.com/profile/mano89" target="_blank" rel="noopener">mano89</a></strong> en BoardGameGeek (BGG).
+          </p>
+          <p>
+            <strong>Guía de Referencia y Reglas de Combate:</strong> El compendio de reglas, descripciones de habilidades y procedimientos de juego están basados en la excelente guía oficial comunitaria de <strong>Peter Gifford ('Universal Head')</strong> de <em>The Esoteric Order of Gamers</em> (<a href="https://orderofgamers.com" target="_blank" rel="noopener">orderofgamers.com</a> / <a href="https://boardgamegeek.com/profile/UniversalHead" target="_blank" rel="noopener">perfil de UniversalHead en BoardGameGeek</a>).
+          </p>
+          <p>
+            <strong>Base de Datos y Army Builder en Español:</strong> Adaptado del trabajo comunitario de <strong><a href="https://boardgamegeek.com/profile/josanto" target="_blank" rel="noopener">josanto</a></strong> en su <a href="https://boardgamegeek.com/filepage/319002/army-builder-en-g-sheets-es" target="_blank" rel="noopener">Army Builder en Google Sheets (BGG)</a>.
+          </p>
+          <p>
+            <strong>Propiedad Intelectual:</strong> <em>HALO®</em> es una marca registrada de <strong>Microsoft Corporation</strong> y <strong>Halo Studios</strong>. <em>Halo: Flashpoint</em> es un juego de miniaturas de mesa producido por <strong>Mantic Games</strong> (2024). Proyecto no comercial creado por aficionados para la comunidad de juegos de mesa.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script type="module">
+    import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
+    const el = document.createElement('pwa-update');
+    document.body.appendChild(el);
+  </script>
+  <script>
+    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js', { scope: './' });
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
