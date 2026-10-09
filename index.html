@@ -28,7 +28,7 @@
     </div>
     
     <div class="home-menu-grid">
-      <button class="home-btn btn-border-gold" onclick="document.getElementById('helpModal').classList.add('active')">
+      <button class="home-btn btn-border-gold" onclick="navigateTo('view-help')">
         <div class="icon-box"><span class="ui-icon icon-home-help"></span></div>
         <div class="text-box">
           <h3>Guía de uso</h3>
@@ -55,7 +55,7 @@
         <div class="arrow-box">></div>
       </button>
 
-      <button class="home-btn btn-border-gold" onclick="navigateTo('diceModal')">
+      <button class="home-btn btn-border-gold" onclick="navigateTo('view-battlefield')">
         <div class="icon-box"><span class="ui-icon icon-home-battle"></span></div>
         <div class="text-box">
           <h3>Campo de Batalla</h3>
@@ -229,14 +229,16 @@
     </div>
   </div>
 
-  <!-- MODAL DE CENTRO TÁCTICO DE OPERACIONES Y DADOS -->
-  <div id="diceModal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 760px;">
-      <button id="btnCloseDice" class="btn-close-modal" onclick="closeDiceModal()">&times;</button>
-      <div class="tutorial-body">
+    <!-- CAMPO DE BATALLA DESEMPAQUETADO (FASE 3) -->
+  <div id="view-battlefield" class="app-view" style="flex-direction: column;">
+    <div id="battlefieldMain" style="overflow-y:auto; flex:1; width:100%; display:flex; flex-direction:column; background: #03070e;">
+      
+      <button class="btn-volver-bf" onclick="goHome()" style="width:calc(100% - 30px); margin: 15px auto; padding:12px; background:rgba(0,0,0,0.4); border:1px solid #71b9b6; color:#71b9b6; border-radius:4px; font-family:'Rajdhani', sans-serif; font-size:1.1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">◎ VOLVER AL MENÚ PRINCIPAL</button>
+      
+      <div class="tutorial-body" style="padding: 0 15px 40px 15px; max-width: 1000px; margin: 0 auto; width: 100%;">
         
-        <!-- BARRA SUPERIOR DE CONTROL DE PARTIDA (RONDAS Y PUNTOS DE VICTORIA) -->
-        <div class="game-tracker-bar">
+        <!-- BARRA SUPERIOR DE CONTROL DE PARTIDA -->
+        <div class="game-tracker-bar" style="border-radius: 4px; display:flex; flex-wrap:wrap; gap:15px; justify-content:space-between;">
           <div class="game-tracker-group">
             <span style="color:#7b96b3;">RONDA:</span>
             <button class="game-tracker-step-btn" onclick="stepGameRound(-1)">-</button>
@@ -267,168 +269,159 @@
         </div>
 
         <!-- PESTAÑAS DEL CENTRO TÁCTICO -->
-        <div class="dice-nav-tabs">
-          <button class="dice-tab-btn active" id="tabBtnDiceCombat" onclick="switchDiceTab('combat')"><span class="ui-icon icon-battle"></span> COMBATE D8</button>
-          <button class="dice-tab-btn" id="tabBtnDiceCommand" onclick="switchDiceTab('command')">⭐ DADOS DE MANDO</button>
-          <button class="dice-tab-btn" id="tabBtnDiceScatter" onclick="switchDiceTab('scatter')">🧭 DISPERSIÓN 3x3</button>
-          <button class="dice-tab-btn" id="tabBtnDiceRecon" onclick="switchDiceTab('recon')"><span class="ui-icon icon-recon"></span> RECON & CHEQUEOS</button>
+        <div class="dice-nav-tabs" style="flex-wrap: wrap;">
+          <button class="dice-tab-btn active" id="tabBtnDiceCombat" onclick="switchDiceTab('combat')" style="flex:1; min-width:140px;"><span class="ui-icon icon-battle"></span> COMBATE D8</button>
+          <button class="dice-tab-btn" id="tabBtnDiceCommand" onclick="switchDiceTab('command')" style="flex:1; min-width:140px;">⭐ DADOS MANDO</button>
+          <button class="dice-tab-btn" id="tabBtnDiceScatter" onclick="switchDiceTab('scatter')" style="flex:1; min-width:140px;">🧭 DISPERSIÓN</button>
+          <button class="dice-tab-btn" id="tabBtnDiceRecon" onclick="switchDiceTab('recon')" style="flex:1; min-width:140px;"><span class="ui-icon icon-recon"></span> RECON</button>
         </div>
 
         <!-- PANEL 1: COMBATE D8 -->
         <div id="dicePanelCombat" class="dice-panel active">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span style="color:#7b96b3; font-size:0.82rem; font-family:'Share Tech Mono';">ENFRENTAMIENTO ATACANTE VS DEFENSOR</span>
+            <span style="color:#7b96b3; font-size:0.82rem; font-family:'Share Tech Mono';">ENFRENTAMIENTO SIMULTÁNEO</span>
             <button class="btn-cancel" style="padding:4px 10px; font-size:0.75rem;" onclick="resetDiceCombat()">↺ Limpiar</button>
           </div>
 
-          <!-- CONTENEDOR DE LOS DOS EQUIPOS / ATACANTE Y DEFENSOR -->
-          <div class="dice-combat-container">
-          <!-- TARJETA ATACANTE -->
-          <div class="dice-team-card attacker">
-            <div class="dice-team-header">
-              <span style="color:#00d2ff;"><span class="ui-icon icon-battle"></span> ATAQUE</span>
-              <div class="dice-count-control">
-                <button class="dice-btn-step" onclick="changeAttDiceCount(-1)">-</button>
-                <span class="dice-count-display" id="dispAttCount">4</span>
-                <button class="dice-btn-step" onclick="changeAttDiceCount(1)">+</button>
+          <!-- CONTROLES UNIFICADOS DE ATAQUE Y DEFENSA -->
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
+            <!-- Fila Atacante -->
+            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:rgba(0,210,255,0.05); border:1px solid rgba(0,210,255,0.2); padding:10px; border-radius:4px; gap:10px;">
+              <div style="display:flex; align-items:center; gap:15px;">
+                <span style="color:#00d2ff; font-weight:800;"><span class="ui-icon icon-battle"></span> ATAQUE</span>
+                <div class="dice-count-control">
+                  <button class="dice-btn-step" onclick="changeAttDiceCount(-1)">-</button>
+                  <span class="dice-count-display" id="dispAttCount">3</span>
+                  <button class="dice-btn-step" onclick="changeAttDiceCount(1)">+</button>
+                </div>
+              </div>
+              <div class="dice-pills-row">
+                <button class="dice-diff-pill" id="btnAttDiff3" onclick="setAttTarget(3)">3+</button>
+                <button class="dice-diff-pill" id="btnAttDiff4" onclick="setAttTarget(4)">4+</button>
+                <button class="dice-diff-pill active" id="btnAttDiff5" onclick="setAttTarget(5)">5+</button>
+                <button class="dice-diff-pill" id="btnAttDiff6" onclick="setAttTarget(6)">6+</button>
+                <button id="btnHeadshot7Toggle" type="button" class="dice-toggle-chip" style="margin-left:5px;" onclick="toggleHeadshotThreshold()">
+                  <span class="ui-icon icon-crit"></span> Crítico 7+
+                </button>
               </div>
             </div>
 
-            <div class="dice-pills-row">
-              <button class="dice-diff-pill" id="btnAttDiff3" onclick="setAttTarget(3)">3+</button>
-              <button class="dice-diff-pill active" id="btnAttDiff4" onclick="setAttTarget(4)">4+</button>
-              <button class="dice-diff-pill" id="btnAttDiff5" onclick="setAttTarget(5)">5+</button>
-              <button class="dice-diff-pill" id="btnAttDiff6" onclick="setAttTarget(6)">6+</button>
+            <!-- Fila Defensor -->
+            <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.2); padding:10px; border-radius:4px; gap:10px;">
+              <div style="display:flex; align-items:center; gap:15px;">
+                <span style="color:#ef4444; font-weight:800;"><span class="ui-icon icon-shield"></span> DEFENSA</span>
+                <div class="dice-count-control">
+                  <button class="dice-btn-step" onclick="changeDefDiceCount(-1)">-</button>
+                  <span class="dice-count-display" id="dispDefCount">3</span>
+                  <button class="dice-btn-step" onclick="changeDefDiceCount(1)">+</button>
+                </div>
+              </div>
+              <div class="dice-pills-row">
+                <button class="dice-diff-pill" id="btnDefDiff3" onclick="setDefTarget(3)">3+</button>
+                <button class="dice-diff-pill" id="btnDefDiff4" onclick="setDefTarget(4)">4+</button>
+                <button class="dice-diff-pill active" id="btnDefDiff5" onclick="setDefTarget(5)">5+</button>
+                <button class="dice-diff-pill" id="btnDefDiff6" onclick="setDefTarget(6)">6+</button>
+              </div>
             </div>
+          </div>
 
-            <div style="display:flex; align-items:center; justify-content:center; width:100%;">
-              <button id="btnHeadshot7Toggle" type="button" class="dice-toggle-chip" onclick="toggleHeadshotThreshold()">
-                <span class="ui-icon icon-crit"></span> Crítico 7+ (Óptica)
+          <!-- ÁREA UNIFICADA DE DADOS -->
+          <div style="min-height: 120px; padding:20px; border:1px solid #334155; background:#05080e; border-radius:6px; display:flex; flex-wrap:wrap; gap:15px; justify-content:center; align-items:center; margin-bottom:15px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+            <div id="attackerDiceGrid" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+              <!-- Dados Blancos -->
+            </div>
+            <div id="defenderDiceGrid" style="display:flex; flex-wrap:wrap; gap:10px; justify-content:center;">
+              <!-- Dados Negros -->
+            </div>
+            <div id="unifiedGridEmptyState" style="color:#64748b; font-family:'Share Tech Mono'; font-size:0.9rem; text-align:center; width:100%;">
+              Configura los dados y pulsa LANZAR DADOS
+            </div>
+          </div>
+
+          <!-- BOTONES DE ACCIÓN (STACK VERTICAL EN MÓVIL) -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button id="btnRollDiceCombat" class="armory-btn-submit" style="width:100%; justify-content:center; padding:14px; font-size:1.1rem; letter-spacing:1px; background:linear-gradient(135deg, #11696b, #00d2ff); color:#050b14; font-weight:800; border-radius:6px;" onclick="rollDiceCombat()">
+              <span class="ui-icon icon-dice"></span> LANZAR DADOS
+            </button>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button id="btnRollExtraHeadshots" class="btn-art-action" style="flex:1; justify-content:center; padding:10px; display:none; background:linear-gradient(135deg,#ca8a04,#eab308); color:#000; border-radius:4px;" onclick="rollExtraHeadshotDice()">
+                <span class="ui-icon icon-crit"></span> +<span id="extraHeadshotCount">0</span> DADO EXTRA (CRÍTICO)
+              </button>
+              <button id="btnRerollAttFails" class="btn-art-action" style="flex:1; justify-content:center; padding:10px; display:none; border-radius:4px;" onclick="rerollFailedAttackerDice()">
+                <span class="ui-icon icon-reroll"></span> REPETIR FALLOS
               </button>
             </div>
-
-            <!-- CUADRÍCULA DE DADOS DEL ATACANTE -->
-            <div class="dice-grid" id="attackerDiceGrid">
-              <span style="color:#64748b; font-size:0.8rem; font-family:'Share Tech Mono';">Dados Atacante</span>
-            </div>
           </div>
 
-          <!-- TARJETA DEFENSOR -->
-          <div class="dice-team-card defender">
-            <div class="dice-team-header">
-              <span style="color:#ef4444;"><span class="ui-icon icon-shield"></span> DEFENSA</span>
-              <div class="dice-count-control">
-                <button class="dice-btn-step" onclick="changeDefDiceCount(-1)">-</button>
-                <span class="dice-count-display" id="dispDefCount">3</span>
-                <button class="dice-btn-step" onclick="changeDefDiceCount(1)">+</button>
-              </div>
+          <!-- SCOREBOARD MINIMALISTA -->
+          <div class="dice-scoreboard-box" style="margin-top:15px; border-radius:6px;">
+            <div class="dice-scoreboard-row">
+              <div><span class="ui-icon icon-battle"></span> ÉXITOS: <span id="dispAttSuccesses" class="dice-scoreboard-score">-</span></div>
+              <div style="color:#475569; font-weight:bold;">VS</div>
+              <div><span class="ui-icon icon-shield"></span> BLOQUEOS: <span id="dispDefSuccesses" class="dice-scoreboard-score">-</span></div>
             </div>
-
-            <div class="dice-pills-row">
-              <button class="dice-diff-pill" id="btnDefDiff3" onclick="setDefTarget(3)">3+</button>
-              <button class="dice-diff-pill" id="btnDefDiff4" onclick="setDefTarget(4)">4+</button>
-              <button class="dice-diff-pill active" id="btnDefDiff5" onclick="setDefTarget(5)">5+</button>
-              <button class="dice-diff-pill" id="btnDefDiff6" onclick="setDefTarget(6)">6+</button>
+            <div id="diceCombatMainVerdict" class="dice-scoreboard-badge idle">
+              LISTO PARA TIRAR
             </div>
-
-            <div style="display:flex; align-items:center; justify-content:center; width:100%; min-height:29px; color:#64748b; font-family:'Share Tech Mono'; font-size:0.75rem;">
-              <span><span class="ui-icon icon-shield"></span> Supervivencia estándar</span>
-            </div>
-
-            <!-- CUADRÍCULA DE DADOS DEL DEFENSOR -->
-            <div class="dice-grid" id="defenderDiceGrid">
-              <span style="color:#64748b; font-size:0.8rem; font-family:'Share Tech Mono';">Dados Defensor</span>
+            <div id="diceCombatBreakdown" style="font-size:0.75rem; color:#64748b; font-family:'Share Tech Mono';">
+              Aplica AP, Escudos y Armadura en mesa según corresponda.
             </div>
           </div>
         </div>
+        <!-- FIN PANEL 1 -->
 
-        <!-- BOTONES DE ACCIÓN -->
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <button id="btnRollDiceCombat" class="armory-btn-submit" style="width:100%; justify-content:center; padding:12px; font-size:1.05rem; letter-spacing:1px; background:linear-gradient(135deg, #11696b, #00d2ff); color:#050b14; font-weight:800;" onclick="rollDiceCombat()">
-            <span class="ui-icon icon-dice"></span> LANZAR DADOS
-          </button>
-
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <button id="btnRollExtraHeadshots" class="btn-art-action" style="flex:1; justify-content:center; padding:8px 12px; display:none; background:linear-gradient(135deg,#ca8a04,#eab308); color:#000;" onclick="rollExtraHeadshotDice()">
-              <span class="ui-icon icon-crit"></span> +<span id="extraHeadshotCount">0</span> DADO EXTRA (CRÍTICO)
-            </button>
-            <button id="btnRerollAttFails" class="btn-art-action" style="flex:1; justify-content:center; padding:8px 12px; display:none;" onclick="rerollFailedAttackerDice()">
-              <span class="ui-icon icon-reroll"></span> REPETIR FALLOS
-            </button>
-          </div>
-        </div>
-
-        <!-- SCOREBOARD MINIMALISTA -->
-        <div class="dice-scoreboard-box">
-          <div class="dice-scoreboard-row">
-            <div><span class="ui-icon icon-battle"></span> ÉXITOS: <span id="dispAttSuccesses" class="dice-scoreboard-score">-</span></div>
-            <div style="color:#475569; font-weight:bold;">VS</div>
-            <div><span class="ui-icon icon-shield"></span> BLOQUEOS: <span id="dispDefSuccesses" class="dice-scoreboard-score">-</span></div>
-          </div>
-          <div id="diceCombatMainVerdict" class="dice-scoreboard-badge idle">
-            LISTO PARA TIRAR
-          </div>
-          <div id="diceCombatBreakdown" style="font-size:0.75rem; color:#64748b; font-family:'Share Tech Mono';">
-            Aplica AP, Escudos y Armadura en mesa según corresponda.
-          </div>
-        </div>
-      </div>
-      <!-- FIN PANEL 1 -->
-
-      <!-- PANEL 2: DADOS DE MANDO (COMMAND DICE DUAL) -->
-      <div id="dicePanelCommand" class="dice-panel">
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:12px; margin-bottom:12px;">
-          <!-- JUGADOR 1 -->
-          <div class="cmd-player-card p1">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p1')" title="Clic para cambiar nombre">
-                <span id="cmdDiceP1Name" style="color:#ef4444; font-family:'Share Tech Mono'; font-weight:800; font-size:0.9rem;"><span class="ui-icon icon-p1"></span> J1</span>
-                <span style="font-size:0.7rem; color:#ef4444; opacity:0.7;">✏️</span>
+        <!-- PANEL 2: DADOS DE MANDO -->
+        <div id="dicePanelCommand" class="dice-panel">
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:15px; margin-bottom:15px;">
+            <!-- JUGADOR 1 -->
+            <div class="cmd-player-card p1" style="border-radius:6px; padding:15px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p1')" title="Clic para cambiar nombre">
+                  <span id="cmdDiceP1Name" style="color:#ef4444; font-family:'Share Tech Mono'; font-weight:800; font-size:1.05rem;"><span class="ui-icon icon-p1"></span> J1</span>
+                  <span style="font-size:0.8rem; color:#ef4444; opacity:0.7;">✏️</span>
+                </div>
+                <div class="dice-count-control">
+                  <button class="dice-btn-step" onclick="changeCmdCount('p1', -1)">-</button>
+                  <span class="dice-count-display" id="dispCmdCountP1">2</span>
+                  <button class="dice-btn-step" onclick="changeCmdCount('p1', 1)">+</button>
+                </div>
               </div>
-              <div class="dice-count-control">
-                <button class="dice-btn-step" onclick="changeCmdCount('p1', -1)">-</button>
-                <span class="dice-count-display" id="dispCmdCountP1">2</span>
-                <button class="dice-btn-step" onclick="changeCmdCount('p1', 1)">+</button>
+              <div class="cmd-dice-grid" id="cmdDiceGridP1" style="min-height:80px;">
+                <span style="color:#64748b; font-size:0.8rem; font-family:'Share Tech Mono';">Sin dados tirados</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <button id="btnRollCmdP1" class="armory-btn-submit" style="width:100%; padding:10px; justify-content:center; border-radius:4px;" onclick="rollCommandDice('p1')"><span class="ui-icon icon-dice"></span> TIRAR J1</button>
+                <button class="btn-art-action" style="width:100%; padding:10px; justify-content:center; border-radius:4px;" onclick="rerollUnspentCommandDice('p1')"><span class="ui-icon icon-reroll"></span> RELANZAR TACTICIAN</button>
               </div>
             </div>
-            <div class="cmd-dice-grid" id="cmdDiceGridP1">
-              <span style="color:#64748b; font-size:0.75rem; font-family:'Share Tech Mono';">Sin dados tirados</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button id="btnRollCmdP1" class="armory-btn-submit" style="flex:1; padding:8px; font-size:0.82rem; justify-content:center;" onclick="rollCommandDice('p1')"><span class="ui-icon icon-dice"></span> TIRAR J1</button>
-              <button class="btn-art-action" style="padding:8px 10px; font-size:0.78rem;" onclick="rerollUnspentCommandDice('p1')" title="Relanzar dados no gastados (Tactician)"><span class="ui-icon icon-reroll"></span> TACTICIAN</button>
-            </div>
-          </div>
 
-          <!-- JUGADOR 2 -->
-          <div class="cmd-player-card p2">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p2')" title="Clic para cambiar nombre">
-                <span id="cmdDiceP2Name" style="color:#00d2ff; font-family:'Share Tech Mono'; font-weight:800; font-size:0.9rem;"><span class="ui-icon icon-p2"></span> J2</span>
-                <span style="font-size:0.7rem; color:#00d2ff; opacity:0.7;">✏️</span>
+            <!-- JUGADOR 2 -->
+            <div class="cmd-player-card p2" style="border-radius:6px; padding:15px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:4px; cursor:pointer;" onclick="editPlayerName('p2')">
+                  <span id="cmdDiceP2Name" style="color:#00d2ff; font-family:'Share Tech Mono'; font-weight:800; font-size:1.05rem;"><span class="ui-icon icon-p2"></span> J2</span>
+                  <span style="font-size:0.8rem; color:#00d2ff; opacity:0.7;">✏️</span>
+                </div>
+                <div class="dice-count-control">
+                  <button class="dice-btn-step" onclick="changeCmdCount('p2', -1)">-</button>
+                  <span class="dice-count-display" id="dispCmdCountP2">2</span>
+                  <button class="dice-btn-step" onclick="changeCmdCount('p2', 1)">+</button>
+                </div>
               </div>
-              <div class="dice-count-control">
-                <button class="dice-btn-step" onclick="changeCmdCount('p2', -1)">-</button>
-                <span class="dice-count-display" id="dispCmdCountP2">2</span>
-                <button class="dice-btn-step" onclick="changeCmdCount('p2', 1)">+</button>
+              <div class="cmd-dice-grid" id="cmdDiceGridP2" style="min-height:80px;">
+                <span style="color:#64748b; font-size:0.8rem; font-family:'Share Tech Mono';">Sin dados tirados</span>
               </div>
-            </div>
-            <div class="cmd-dice-grid" id="cmdDiceGridP2">
-              <span style="color:#64748b; font-size:0.75rem; font-family:'Share Tech Mono';">Sin dados tirados</span>
-            </div>
-            <div style="display:flex; gap:6px;">
-              <button id="btnRollCmdP2" class="armory-btn-submit" style="flex:1; padding:8px; font-size:0.82rem; justify-content:center; background:linear-gradient(135deg, #11696b, #00d2ff);" onclick="rollCommandDice('p2')"><span class="ui-icon icon-dice"></span> TIRAR J2</button>
-              <button class="btn-art-action" style="padding:8px 10px; font-size:0.78rem;" onclick="rerollUnspentCommandDice('p2')" title="Relanzar dados no gastados (Tactician)"><span class="ui-icon icon-reroll"></span> TACTICIAN</button>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <button id="btnRollCmdP2" class="armory-btn-submit" style="width:100%; padding:10px; justify-content:center; border-radius:4px; background:linear-gradient(135deg, #0284c7, #0ea5e9);" onclick="rollCommandDice('p2')"><span class="ui-icon icon-dice"></span> TIRAR J2</button>
+                <button class="btn-art-action" style="width:100%; padding:10px; justify-content:center; border-radius:4px;" onclick="rerollUnspentCommandDice('p2')"><span class="ui-icon icon-reroll"></span> RELANZAR TACTICIAN</button>
+              </div>
             </div>
           </div>
         </div>
+        <!-- FIN PANEL 2 -->
 
-        <button id="btnRollCmdBoth" class="armory-btn-submit" style="width:100%; justify-content:center; padding:10px; font-size:0.95rem; background:linear-gradient(135deg, #0284c7, #10b981);" onclick="rollBothCommandDice()">
-          <span class="ui-icon icon-dice"></span> ¡TIRAR MANDO DE AMBOS JUGADORES!
-        </button>
-      </div>
-
-      <!-- PANEL 3: DISPERSIÓN 3X3 -->
+        <!-- PANEL 3: DISPERSIÓN 3X3 -->
       <div id="dicePanelScatter" class="dice-panel">
         <div class="scatter-grid">
           <div class="scatter-cell" id="scatterCell1">1</div>
@@ -577,7 +570,8 @@
   </div>
 </div>
 
-  <!-- MODAL DE ÓRDENES Y MEJORAS DE ESCUADRA -->
+        </div>
+    </div><!-- MODAL DE ÓRDENES Y MEJORAS DE ESCUADRA -->
   <div id="ordersModal" class="modal-overlay">
     <div class="modal-content" style="max-width: 720px;">
       <button id="btnCloseOrders" class="btn-close-modal" onclick="closeOrdersModal()">&times;</button>
@@ -610,11 +604,11 @@
   <input type="file" id="globalPhotoInput" accept="image/*" style="display:none;">
   <input type="file" id="jsonImportInput" accept=".json" style="display:none;">
 
-  <!-- MODAL DE BARRACONES Y ARMERÍA (TALLER TÁCTICO) -->
-  <div id="armoryModal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 860px;">
-      <button id="btnCloseArmory" class="btn-close-modal" onclick="closeArmoryModal()">&times;</button>
-      <div class="tutorial-body">
+  <!-- VISTA DE BARRACONES Y ARMERÍA (TALLER TÁCTICO) -->
+  <div id="view-armory" class="app-view" style="flex-direction: column;">
+    <div id="armoryMain" style="overflow-y:auto; flex:1; width:100%; display:flex; flex-direction:column; background: #050b14;">
+      <button class="btn-volver-bf" onclick="goHome()" style="width:calc(100% - 30px); margin: 15px auto; padding:12px; background:rgba(0,0,0,0.4); border:1px solid #71b9b6; color:#71b9b6; border-radius:4px; font-family:'Rajdhani', sans-serif; font-size:1.1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">◎ VOLVER AL MENÚ PRINCIPAL</button>
+      <div class="tutorial-body" style="padding: 0 15px 40px 15px; max-width: 1000px; margin: 0 auto; width: 100%;">
         <h2><span class="ui-icon icon-armory"></span> BARRACONES Y ARMERÍA (TALLER TÁCTICO)</h2>
         <p style="color:#7b96b3; font-size:0.9rem; margin-bottom:16px;">
           Centro de personalización y suministros. Crea nuevas reglas, fabrica armamento, recluta operativos a la medida, asigna fotos de tus miniaturas pintadas y administra respaldos.
@@ -944,11 +938,11 @@
     </div>
   </div>
 
-  <!-- MODAL DE COMPENDIO OFICIAL: REGLAS, ACCIONES, ÍTEMS Y GLOSARIO -->
-  <div id="compendiumModal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 860px;">
-      <button id="btnCloseCompendium" class="btn-close-modal" onclick="closeCompendiumModal()">&times;</button>
-      <div class="tutorial-body">
+  <!-- VISTA DE COMPENDIO OFICIAL: REGLAS, ACCIONES, ÍTEMS Y GLOSARIO -->
+  <div id="view-compendium" class="app-view" style="flex-direction: column;">
+    <div id="compendiumMain" style="overflow-y:auto; flex:1; width:100%; display:flex; flex-direction:column; background: #050b14;">
+      <button class="btn-volver-bf" onclick="goHome()" style="width:calc(100% - 30px); margin: 15px auto; padding:12px; background:rgba(0,0,0,0.4); border:1px solid #71b9b6; color:#71b9b6; border-radius:4px; font-family:'Rajdhani', sans-serif; font-size:1.1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">◎ VOLVER AL MENÚ PRINCIPAL</button>
+      <div class="tutorial-body" style="padding: 0 15px 40px 15px; max-width: 1000px; margin: 0 auto; width: 100%;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; border-bottom:1px solid var(--glass-border); padding-bottom:10px; margin-bottom:16px;">
           <div>
             <h2 style="margin:0; border:none; padding:0; font-size:1.65rem;"><span class="ui-icon icon-rules"></span> COMPENDIO OFICIAL Y GLOSARIO: HALO FLASHPOINT</h2>
@@ -1456,89 +1450,60 @@
     </div>
   </div>
 
-  <!-- MODAL DE MANUAL Y GUÍA DE USO COMPLETA -->
-  <div id="helpModal" class="modal-overlay">
-    <div class="modal-content">
-      <button id="btnCloseHelp" class="btn-close-modal">&times;</button>
-      <div class="tutorial-body">
-        <h2>GUÍA DE USO Y MANUAL TÁCTICO: HALO FLASHPOINT</h2>
+  <!-- VISTA DE MANUAL Y GUÍA DE USO COMPLETA -->
+  <div id="view-help" class="app-view" style="flex-direction: column;">
+    <div id="helpMain" style="overflow-y:auto; flex:1; width:100%; display:flex; flex-direction:column; background: #050b14;">
+      <button class="btn-volver-bf" onclick="goHome()" style="width:calc(100% - 30px); margin: 15px auto; padding:12px; background:rgba(0,0,0,0.4); border:1px solid #71b9b6; color:#71b9b6; border-radius:4px; font-family:'Rajdhani', sans-serif; font-size:1.1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">◎ VOLVER AL MENÚ PRINCIPAL</button>
+      <div class="tutorial-body" style="padding: 0 15px 40px 15px; max-width: 1000px; margin: 0 auto; width: 100%;">
+                <h2>GUÍA DE USO Y MANUAL TÁCTICO: HALO FLASHPOINT</h2>
         <p style="font-size:1.05rem; color:#d0dbe8; margin-bottom:16px;">
-          Bienvenido al <strong>Visor Táctico para Halo: Flashpoint</strong>, la suite comunitaria definitiva para explorar operativos, gestionar listas de ejército competitivas y casuales, simular combates en mesa y generar dossiers de combate listos para imprimir.
+          Bienvenido al <strong>Visor Táctico para Halo: Flashpoint</strong>, la suite comunitaria definitiva para explorar operativos, gestionar listas de ejército competitivas y casuales, simular combates en mesa y consultar el compendio oficial de reglas.
         </p>
 
         <h3>1. Exploración de Operativos y Base de Datos</h3>
         <ul>
           <li><strong>Filtros Inmediatos:</strong> Aísla operativos por facción (UNSC o Desterrados) o usa el buscador en tiempo real para localizar cualquier miniatura por nombre.</li>
-          <li><strong>Estadísticas Oficiales en Tarjeta:</strong>
-            <ul>
-              <li><strong>RA (Ranged):</strong> Dados para pruebas de ataque a distancia.</li>
-              <li><strong>FI (Fight):</strong> Dados para combate cuerpo a cuerpo y asaltos.</li>
-              <li><strong>SV (Survive):</strong> Dados para pruebas de defensa y supervivencia.</li>
-              <li><strong>SP (Speed):</strong> Puntos de movimiento estándar / carrera.</li>
-              <li><strong>AR (Armor):</strong> Resistencia física a impactos que reduce el daño.</li>
-              <li><strong>HP (Health):</strong> Puntos de herida del modelo.</li>
-              <li><strong>SH (Shield):</strong> Puntos de Escudo de Energía (se agotan primero y se recargan al inicio de cada ronda).</li>
-            </ul>
-          </li>
-          <li><strong>Palabras Clave Interactivas:</strong> Toca cualquier palabra clave en la tarjeta de combate de una unidad o arma para abrir instantáneamente su regla oficial completa sin salir de la vista.</li>
+          <li><strong>Palabras Clave Interactivas:</strong> Toca cualquier palabra clave resaltada en la tarjeta de un operativo o arma para abrir instantáneamente su regla oficial completa sin salir de la vista.</li>
         </ul>
 
         <h3>2. Creación y Gestión de Escuadras</h3>
         <ul>
-          <li><strong>Añadir a Escuadra:</strong> Pulsa <strong>[ ➕ AÑADIR A ESCUADRA ]</strong> en cualquier tarjeta. Si tienes más de una escuadra creada, se abrirá un menú táctico para seleccionar a cuál asignarla.</li>
-          <li><strong>Panel de Escuadras (Pestaña MIS ESCUADRAS):</strong>
+          <li><strong>Añadir a Escuadra:</strong> Pulsa el botón <strong>[ + AÑADIR A ESCUADRA ]</strong> en cualquier tarjeta. Si tienes más de una escuadra creada, un panel completo te preguntará a cuál asignarla.</li>
+          <li><strong>Vista Completa "Mis Escuadras":</strong> La lista de escuadras fluye en formato de app completa. Puedes renombrarlas tocando el lápiz [✏️] o construir tu lista activando el Modo War Games.</li>
+          <li><strong>Modo Draft vs War Games:</strong>
             <ul>
-              <li><strong>Crear nueva escuadra:</strong> Pulsa el botón <strong>[+]</strong> e ingresa el nombre deseado.</li>
-              <li><strong>Renombrar escuadra:</strong> Pulsa el botón del lápiz <strong>[✏️]</strong> para cambiar el nombre de la escuadra activa en cualquier momento.</li>
-              <li><strong>Eliminar o vaciar:</strong> Pulsa <strong>[-]</strong> para borrar la escuadra o <strong>[ VACIAR ESCUADRA ]</strong> para remover todos sus operativos.</li>
+              <li><strong>Draft:</strong> Juego rápido y casual sin personalización adicional. Costes fijos.</li>
+              <li><strong>War Games:</strong> Listas por puntos competitivas. Te permite pulsar [⚙️ PERSONALIZAR WARGAME] para dotar al operativo con armas, granadas y objetos. Pulsa [🎖️ ÓRDENES Y MEJORAS] para añadir comandos de facción.</li>
             </ul>
           </li>
         </ul>
 
-        <h3>3. Modos de Juego: Draft vs War Games</h3>
+        <h3>3. Campo de Batalla y Herramientas Digitales (<span class="ui-icon icon-battle"></span>)</h3>
         <ul>
-          <li><strong>MODO DRAFT (Básico / Casual):</strong> Los operativos usan estrictamente sus armas de serie y su coste base original de carta. Todo el equipamiento adicional se recoge sobre el tablero de juego.</li>
-          <li><strong>MODO WAR GAMES (Competitivo Oficial Mantic):</strong> Construcción de listas a puntos (estándar de <strong>200 P</strong>, o límites de 150 P, 250 P, 300 P y Libre).
-            <ul>
-              <li><strong>Personalizar Operativo [⚙️]:</strong> Pulsa <em>[⚙️ PERSONALIZAR WARGAME]</em> en la lista de tu escuadra para asignarle un arma dedicada cuerpo a cuerpo (CC), arma principal de disparo, secundaria de respaldo, granadas iniciales y objetos tácticos con sus costes oficiales en puntos.</li>
-              <li><strong>Órdenes y Mejoras [<span class="ui-icon icon-armory"></span>]:</strong> Pulsa <em>[🎖️ ÓRDENES Y MEJORAS DE ESCUADRA]</em> para adquirir órdenes tácticas de mando y mejoras de ejército para tu lista.</li>
-            </ul>
-          </li>
+          <li><strong>Scroll Vertical:</strong> El Campo de Batalla ya no es una pequeña ventana, es una vista interactiva que fluye hacia abajo, adaptándose perfectamente al ancho de tu móvil o PC.</li>
+          <li><strong>Simulador de Combate D8:</strong> Enfrenta ataque vs defensa en la "Piscina Unificada de Dados" con animación de tirada y la regla de <strong>Críticos 8+ continuos</strong> aplicada automáticamente.</li>
+          <li><strong>Gestor de Dados de Mando Dual:</strong> Gestiona y tira los dados de mando de cada jugador, con botón rápido de relanzamiento para Tactician.</li>
+          <li><strong>Ruleta de Dispersión 3x3:</strong> Cuadrícula visual 3x3 y botón para tirar tu D8 direccional con rebote, resolviendo el desvío de granadas en las 8 direcciones.</li>
+          <li><strong>Recon e Iniciativa Oficial:</strong> Panel nativo de 5 dados vs 5 dados a 5+, con cálculo automático del ganador y tiradas separadas de efectos según la diferencia de éxitos.</li>
         </ul>
 
-        <h3>4. Campo de Batalla y Dados Digitales (<span class="ui-icon icon-battle"></span>)</h3>
+        <h3>4. Barracones y Armería (<span class="ui-icon icon-armory"></span>)</h3>
         <ul>
-          <li><strong>Marcador Superior de Partida:</strong> Controla la <strong>Ronda actual (1 a 10)</strong>, los <strong>Puntos de Victoria (VP)</strong> de ambos jugadores y edita sus nombres haciendo clic sobre ellos (limitados a 12 caracteres para mantener una interfaz limpia). Con el botón <strong>↺ Reset</strong> reinicias la partida y desbloqueas las tiradas de Recon.</li>
-          <li><strong>Simulador de Combate D8:</strong> Enfrenta atacante vs defensor con dados automáticos, modificadores por posición y la regla oficial de <strong>Headshots continuos</strong> (cada resultado de 8 otorga dados extra de forma sucesiva).</li>
-          <li><strong>Gestor de Dados de Mando Dual:</strong> Gestiona individualmente los dados de mando de cada jugador, con contador de dados disponibles y el botón <strong>TACTICIAN</strong> para relanzar dados no gastados.</li>
-          <li><strong>Ruleta de Dispersión 3x3:</strong> Animación giratoria tipo ruleta para resolver el desvío de granadas y disparos explosivos en las 8 direcciones oficiales.</li>
-          <li><strong>Recon e Iniciativa Oficial:</strong>
-            <ul>
-              <li><strong>Test de 5 Dados a 5+:</strong> Tirada simultánea para ambos jugadores. En caso de empate se solicita relanzar.</li>
-              <li><strong>Ventaja para Ganador y Perdedor:</strong> El ganador lanza dados según la diferencia de éxitos (máximo 2 dados, relanzando duplicados automáticamente). El perdedor lanza 1 dado.</li>
-              <li><strong>Bloqueo Permanente:</strong> Una vez consultada la ventaja, los dados de efecto quedan bloqueados para evitar alteraciones hasta el reinicio de la partida con el botón Reset superior.</li>
-            </ul>
-          </li>
+          <li><strong>Formularios Adaptados a Táctil:</strong> Los Barracones han sido rediseñados como una vista de aplicación a pantalla completa, con casillas de texto más grandes que evitan los bloqueos del teclado virtual en móvil.</li>
+          <li><strong>Centro de Personalización:</strong> Diseña tus propias palabras clave, forja armas nuevas y recluta operativos personalizados con reglas caseras.</li>
+          <li><strong>Fotos de tus Miniaturas Pintadas:</strong> Toca la imagen del operativo y sube fotos reales de tus figuras pintadas usando el marco de recorte circular, compatible con gestos táctiles.</li>
         </ul>
 
-        <h3>5. Barracones y Armería (Taller Táctico <span class="ui-icon icon-armory"></span>)</h3>
-        <ul>
-          <li><strong>Centro de Personalización y Modding:</strong> Diseña tus propias palabras clave, forja armas nuevas y recluta operativos a la medida para expansiones o reglas caseras.</li>
-          <li><strong>Fotos de tus Miniaturas Pintadas con Recorte Circular:</strong> Haz clic sobre la foto de cualquier operativo para subir la foto de tu miniatura real. Incluye un encuadre interactivo para arrastrar y aplicar zoom con la rueda del ratón o los controles táctiles.</li>
-          <li><strong>Logística y Respaldos:</strong> Exporta e importa tus listas y creaciones en formato JSON, o recarga la base de datos oficial en Excel.</li>
-        </ul>
-
-        <h3>6. Compendio de Reglas y Glosario (<span class="ui-icon icon-rules"></span>)</h3>
+        <h3>5. Compendio de Reglas y Glosario (<span class="ui-icon icon-rules"></span>)</h3>
         <p style="font-size:0.9rem; color:#cbd5e1;">
-          Accede en cualquier momento mediante el botón <strong><span class="ui-icon icon-rules"></span></strong> de la cabecera o el botón <strong><span class="ui-icon icon-rules"></span> REGLAS Y GLOSARIO OFICIAL</strong> en el menú lateral para consultar las 47 habilidades oficiales con buscador en tiempo real, las reglas completas de movimiento, terreno, caídas, combate, transporte de ítems y tablas de Recon.
+          El Compendio oficial ahora disfruta de una <strong>vista de lectura inmersiva a pantalla completa</strong> (estilo enciclopedia). Puedes consultar las 47 habilidades oficiales, las reglas completas de movimiento, terreno, combate y las tablas de Recon de forma fácil y ampliada.
         </p>
 
-        <h3>7. Impresión de Dossiers de Combate A4</h3>
+        <h3>6. Impresión y Exportación</h3>
         <ul>
-          <li>Pulsa <strong>[ IMPRIMIR ESCUADRA ACTUAL ]</strong> (o <code>Ctrl + P</code>) para generar una hoja limpia de alto contraste sin fondos oscuros.</li>
-          <li>Distribución optimizada (3 a 4 modelos por página), salto de página inteligente y hoja final de glosario consolidado con todas las reglas de la escuadra sin duplicados.</li>
+          <li><strong>Impresión A4 (Ctrl + P):</strong> Genera dossiers impresos optimizados de alto contraste sin los fondos oscuros. Organiza tu lista con un glosario consolidado para no duplicar reglas.</li>
+          <li><strong>Respaldo JSON:</strong> En los Barracones, puedes exportar o importar todo tu archivo de datos para compartir listas personalizadas.</li>
         </ul>
-
         <div class="credits-section">
           <h3>AVISO LEGAL, CRÉDITOS Y DERECHOS DE AUTOR</h3>
           <p>

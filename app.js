@@ -52,17 +52,17 @@ window.onerror = function(m,u,l,c,e){ alert('JS ERROR: ' + m + ' Line: ' + l); }
     const squadPointsTotal = document.getElementById('squadPointsTotal');
     const btnClearSquad = document.getElementById('btnClearSquad');
 
-    const helpModal = document.getElementById('helpModal');
+    const helpModal = document.getElementById('view-help');
     const btnOpenHelp = document.getElementById('btnOpenHelp');
     const btnCloseHelp = document.getElementById('btnCloseHelp');
     const btnOpenHelpEmpty = document.getElementById('btnOpenHelpEmpty');
 
-    function openModal() { helpModal.classList.add('active'); }
-    function closeModal() { helpModal.classList.remove('active'); }
+    function openModal() { if(helpModal) helpModal.classList.add('active'); }
+    function closeModal() { if(helpModal) helpModal.classList.remove('active'); }
     if (btnOpenHelp) btnOpenHelp.addEventListener('click', openModal);
     if (btnCloseHelp) btnCloseHelp.addEventListener('click', closeModal);
     if(btnOpenHelpEmpty) btnOpenHelpEmpty.addEventListener('click', openModal);
-    helpModal.addEventListener('click', (e) => { if(e.target === helpModal) closeModal(); });
+    if(helpModal) helpModal.addEventListener('click', (e) => { if(e.target === helpModal) closeModal(); });
     const selectSquadModalEl = document.getElementById('selectSquadModal');
     if(selectSquadModalEl) {
       selectSquadModalEl.addEventListener('click', (e) => { if(e.target === selectSquadModalEl) closeSelectSquadModal(); });
@@ -82,7 +82,7 @@ window.onerror = function(m,u,l,c,e){ alert('JS ERROR: ' + m + ' Line: ' + l); }
     tabSquad.addEventListener('click', () => {
       currentTab = 'SQUAD';
       tabSquad.classList.add('active'); tabDB.classList.remove('active');
-      viewSquad.style.display = 'flex'; viewDB.style.display = 'none';
+      viewSquad.style.display = 'block'; viewDB.style.display = 'none';
       mainContainer.innerHTML = emptyStateHTML;
       document.getElementById('btnOpenHelpEmpty')?.addEventListener('click', openModal);
       currentSelectedId = null;
@@ -948,6 +948,7 @@ window.onerror = function(m,u,l,c,e){ alert('JS ERROR: ' + m + ' Line: ' + l); }
     window.rollDiceCombat = function() {
       if (diceCombatState.isRolling) return;
       diceCombatState.isRolling = true;
+      if (document.getElementById('unifiedGridEmptyState')) document.getElementById('unifiedGridEmptyState').style.display = 'none';
 
       const attGrid = document.getElementById('attackerDiceGrid');
       const defGrid = document.getElementById('defenderDiceGrid');
@@ -1208,6 +1209,7 @@ window.onerror = function(m,u,l,c,e){ alert('JS ERROR: ' + m + ' Line: ' + l); }
     };
 
     window.resetDiceCombat = function() {
+      if (document.getElementById('unifiedGridEmptyState')) document.getElementById('unifiedGridEmptyState').style.display = 'block';
       diceCombatState.attDice = [];
       diceCombatState.defDice = [];
       diceCombatState.extraHeadshotsEarned = 0;
@@ -3916,7 +3918,7 @@ window.onerror = function(m,u,l,c,e){ alert('JS ERROR: ' + m + ' Line: ' + l); }
     }
 
     // MODAL DE BARRACONES Y ARMERÍA
-    const armoryModal = document.getElementById('armoryModal');
+    const armoryModal = document.getElementById('view-armory');
     window.openArmoryModal = function(tabName = 'rules') {
       if (armoryModal) {
         armoryModal.classList.add('active');
@@ -4605,7 +4607,7 @@ window.onerror = function(m,u,l,c,e){ alert('JS ERROR: ' + m + ' Line: ' + l); }
     }
 
     // MODAL DE COMPENDIO OFICIAL Y GLOSARIO
-    const compendiumModal = document.getElementById('compendiumModal');
+    const compendiumModal = document.getElementById('view-compendium');
 
     window.openCompendiumModal = function(tabName = 'glossary') {
       if (compendiumModal) {

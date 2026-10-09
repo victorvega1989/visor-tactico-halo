@@ -1454,8 +1454,8 @@
       font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: #8df5a0; text-transform: uppercase;
     }
     .armory-form-group input, .armory-form-group select, .armory-form-group textarea {
-      background: rgba(0, 0, 0, 0.6); color: #fff; border: 1px solid #283c54; padding: 7px 10px;
-      font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; outline: none; border-radius: 3px;
+      background: rgba(0, 0, 0, 0.6); color: #fff; border: 1px solid #283c54; padding: 12px;
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem; outline: none; border-radius: 4px;
     }
     .armory-form-group input:focus, .armory-form-group select:focus, .armory-form-group textarea:focus {
       border-color: var(--text-cyan); box-shadow: 0 0 8px rgba(0,210,255,0.3);
@@ -2203,7 +2203,6 @@ body.spa-mode #view-database {
 /* PERMITIR QUE LOS CONTROLES DE ESCUADRA HAGAN SCROLL CON LA LISTA */
 #viewSquad {
   overflow-y: auto !important;
-  display: block !important;
 }
 #viewSquad .unit-list {
   overflow-y: visible !important;
